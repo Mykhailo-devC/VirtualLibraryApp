@@ -1,6 +1,7 @@
 global using VirtualLibrary.Models;
 global using Serilog;
 using Microsoft.EntityFrameworkCore;
+using VirtualLibrary.Utilites;
 
 class Program
 {
@@ -18,6 +19,7 @@ class Program
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+        builder.Services.AddScoped<RepositoryFactory>();
 
         var app = builder.Build();
 

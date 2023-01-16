@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
+﻿
 namespace VirtualLibrary.Models;
 
 public partial class ArticleCopy

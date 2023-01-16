@@ -123,5 +123,24 @@ public partial class VirtualLibraryDbContext : DbContext
         OnModelCreatingPartial(modelBuilder);
     }
 
+    public object CreateEntityInstance<K>(K entityDto)
+    {
+        switch (entityDto)
+        {
+            case PublisherDTO publisherDTO:
+                {
+                    return new Publisher
+                    {
+                        Name = publisherDTO.Name,
+                    };
+
+                }
+            default:
+                {
+                    return null;
+                }
+        }
+    }
+
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

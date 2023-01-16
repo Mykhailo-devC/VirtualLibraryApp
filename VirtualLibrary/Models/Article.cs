@@ -3,6 +3,10 @@ namespace VirtualLibrary.Models;
 
 public partial class Article
 {
+    public Article()
+    {
+
+    }
     public int Id { get; set; }
 
     public int Version { get; set; }

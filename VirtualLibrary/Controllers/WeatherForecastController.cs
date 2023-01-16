@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using VirtualLibrary.Utilites;
 
 namespace VirtualLibrary.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
@@ -14,20 +15,23 @@ namespace VirtualLibrary.Controllers
 
         private readonly VirtualLibraryDbContext _context;
         private readonly ILogger<WeatherForecastController> _logger;
+        private readonly RepositoryFactory _factory;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, VirtualLibraryDbContext context)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, VirtualLibraryDbContext context, RepositoryFactory factory)
         {
             _logger = logger;
             _context = context;
+            _factory = factory;
         }
 
-        [HttpGet(Name = "GetPublisher")]
-        public IEnumerable<Publisher>  Get()
+        [HttpGet("GetPublisher")]
+        public async void Get()
         {
+            var repo = _factory.GetRepository<Article, ArticleDTO>();
 
-            var publisher = _context.Publishers.Select(p => p).ToArray();
+            var result = await repo.CreateAsync(new ArticleDTO { Author = "123", ItemId = 1, MagazineId = 1, Version = 1});
+            Console.WriteLine(result);
 
-            return publisher;
         }
     }
 }
