@@ -1,7 +1,7 @@
 global using VirtualLibrary.Models;
 global using Serilog;
 using Microsoft.EntityFrameworkCore;
-using VirtualLibrary.Utilites;
+using VirtualLibrary.Utilites.Implementations;
 
 class Program
 {

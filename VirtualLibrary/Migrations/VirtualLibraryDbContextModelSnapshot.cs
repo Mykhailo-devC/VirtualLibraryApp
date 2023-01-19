@@ -25,26 +25,20 @@ namespace VirtualLibrary.Migrations
             modelBuilder.Entity("VirtualLibrary.Models.Article", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Author")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("ItemId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Version")
-                        .HasColumnType("int");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id")
-                        .HasName("PK__Articles__3214EC07F069ECEC");
-
-                    b.HasIndex("ItemId");
+                        .HasName("PK__Articles__3214EC07EEECDBC9");
 
                     b.ToTable("Articles", (string)null);
                 });
@@ -57,13 +51,24 @@ namespace VirtualLibrary.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CopyId"));
 
-                    b.Property<int>("ArticleId")
+                    b.Property<int?>("ArticleId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ItemId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Version")
                         .HasColumnType("int");
 
                     b.HasKey("CopyId")
-                        .HasName("PK__ArticleC__C26CCCC5323192A0");
+                        .HasName("PK__ArticleC__C26CCCC52B9680AC");
 
                     b.HasIndex("ArticleId");
+
+                    b.HasIndex("ItemId");
+
+                    b.HasIndex(new[] { "Version" }, "UQ__ArticleC__0F540134C210F98E")
+                        .IsUnique();
 
                     b.ToTable("ArticleCopies", (string)null);
                 });
@@ -71,30 +76,20 @@ namespace VirtualLibrary.Migrations
             modelBuilder.Entity("VirtualLibrary.Models.Book", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Author")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("Isbn")
-                        .HasColumnType("int")
-                        .HasColumnName("ISBN");
-
-                    b.Property<int>("ItemId")
-                        .HasColumnType("int");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id")
-                        .HasName("PK__Books__3214EC07B825115C");
-
-                    b.HasIndex("ItemId");
-
-                    b.HasIndex(new[] { "Isbn" }, "UQ__Books__447D36EA8D7D3A38")
-                        .IsUnique();
+                        .HasName("PK__Books__3214EC073A6D69FC");
 
                     b.ToTable("Books", (string)null);
                 });
@@ -107,13 +102,25 @@ namespace VirtualLibrary.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CopyId"));
 
-                    b.Property<int>("BookId")
+                    b.Property<int?>("BookId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Isbn")
+                        .HasColumnType("int")
+                        .HasColumnName("ISBN");
+
+                    b.Property<int?>("ItemId")
                         .HasColumnType("int");
 
                     b.HasKey("CopyId")
-                        .HasName("PK__BookCopi__C26CCCC5E76261AA");
+                        .HasName("PK__BookCopi__C26CCCC5CA618E1F");
 
                     b.HasIndex("BookId");
+
+                    b.HasIndex("ItemId");
+
+                    b.HasIndex(new[] { "Isbn" }, "UQ__BookCopi__447D36EA0C097A99")
+                        .IsUnique();
 
                     b.ToTable("BookCopies", (string)null);
                 });
@@ -126,21 +133,16 @@ namespace VirtualLibrary.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ItemName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<DateTime>("PublishDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
                         .HasDefaultValueSql("(getdate())");
 
-                    b.Property<int>("PublisherId")
+                    b.Property<int?>("PublisherId")
                         .HasColumnType("int");
 
                     b.HasKey("Id")
-                        .HasName("PK__Items__3214EC0717C528A5");
+                        .HasName("PK__Items__3214EC0751B5B6A0");
 
                     b.HasIndex("PublisherId");
 
@@ -150,24 +152,15 @@ namespace VirtualLibrary.Migrations
             modelBuilder.Entity("VirtualLibrary.Models.Magazine", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("IssueNumber")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ItemId")
-                        .HasColumnType("int");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id")
-                        .HasName("PK__Magazine__3214EC07C71B2932");
-
-                    b.HasIndex("ItemId");
-
-                    b.HasIndex(new[] { "IssueNumber" }, "UQ__Magazine__5703F26CCF0E55B4")
-                        .IsUnique();
+                        .HasName("PK__Magazine__3214EC0759E5CCA3");
 
                     b.ToTable("Magazines", (string)null);
                 });
@@ -180,18 +173,24 @@ namespace VirtualLibrary.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ArticleId")
+                    b.Property<int?>("ArticleId")
                         .HasColumnType("int");
 
-                    b.Property<int>("MagazineId")
+                    b.Property<int>("IssueNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MagazineId")
                         .HasColumnType("int");
 
                     b.HasKey("Id")
-                        .HasName("PK__Magazine__3214EC078F1EDE53");
+                        .HasName("PK__Magazine__3214EC070EA99B31");
 
                     b.HasIndex("ArticleId");
 
                     b.HasIndex("MagazineId");
+
+                    b.HasIndex(new[] { "IssueNumber" }, "UQ__Magazine__5703F26C46E00E74")
+                        .IsUnique();
 
                     b.ToTable("MagazineArticle", (string)null);
                 });
@@ -204,13 +203,24 @@ namespace VirtualLibrary.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CopyId"));
 
-                    b.Property<int>("MagazineId")
+                    b.Property<int>("IssureNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ItemId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MagazineId")
                         .HasColumnType("int");
 
                     b.HasKey("CopyId")
-                        .HasName("PK__Magazine__C26CCCC58566BDDA");
+                        .HasName("PK__Magazine__C26CCCC55F07A4AA");
+
+                    b.HasIndex("ItemId");
 
                     b.HasIndex("MagazineId");
+
+                    b.HasIndex(new[] { "IssureNumber" }, "UQ__Magazine__F1B3FFCC9771C23A")
+                        .IsUnique();
 
                     b.ToTable("MagazineCopies", (string)null);
                 });
@@ -229,21 +239,9 @@ namespace VirtualLibrary.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id")
-                        .HasName("PK__Publishe__3214EC0762B8ED1F");
+                        .HasName("PK__Publishe__3214EC0789315C32");
 
                     b.ToTable("Publishers", (string)null);
-                });
-
-            modelBuilder.Entity("VirtualLibrary.Models.Article", b =>
-                {
-                    b.HasOne("VirtualLibrary.Models.Item", "Item")
-                        .WithMany("Articles")
-                        .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK__Articles__ItemId__403A8C7D");
-
-                    b.Navigation("Item");
                 });
 
             modelBuilder.Entity("VirtualLibrary.Models.ArticleCopy", b =>
@@ -251,21 +249,14 @@ namespace VirtualLibrary.Migrations
                     b.HasOne("VirtualLibrary.Models.Article", "Article")
                         .WithMany("ArticleCopies")
                         .HasForeignKey("ArticleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK__ArticleCo__Artic__4D94879B");
+                        .HasConstraintName("FK__ArticleCo__Artic__3A81B327");
+
+                    b.HasOne("VirtualLibrary.Models.Item", "Item")
+                        .WithMany("ArticleCopies")
+                        .HasForeignKey("ItemId")
+                        .HasConstraintName("FK__ArticleCo__ItemI__3B75D760");
 
                     b.Navigation("Article");
-                });
-
-            modelBuilder.Entity("VirtualLibrary.Models.Book", b =>
-                {
-                    b.HasOne("VirtualLibrary.Models.Item", "Item")
-                        .WithMany("Books")
-                        .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK__Books__ItemId__3D5E1FD2");
 
                     b.Navigation("Item");
                 });
@@ -275,11 +266,16 @@ namespace VirtualLibrary.Migrations
                     b.HasOne("VirtualLibrary.Models.Book", "Book")
                         .WithMany("BookCopies")
                         .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK__BookCopie__BookI__4AB81AF0");
+                        .HasConstraintName("FK__BookCopie__BookI__35BCFE0A");
+
+                    b.HasOne("VirtualLibrary.Models.Item", "Item")
+                        .WithMany("BookCopies")
+                        .HasForeignKey("ItemId")
+                        .HasConstraintName("FK__BookCopie__ItemI__36B12243");
 
                     b.Navigation("Book");
+
+                    b.Navigation("Item");
                 });
 
             modelBuilder.Entity("VirtualLibrary.Models.Item", b =>
@@ -287,23 +283,9 @@ namespace VirtualLibrary.Migrations
                     b.HasOne("VirtualLibrary.Models.Publisher", "Publisher")
                         .WithMany("Items")
                         .HasForeignKey("PublisherId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK__Items__Publisher__398D8EEE");
+                        .HasConstraintName("FK__Items__Publisher__276EDEB3");
 
                     b.Navigation("Publisher");
-                });
-
-            modelBuilder.Entity("VirtualLibrary.Models.Magazine", b =>
-                {
-                    b.HasOne("VirtualLibrary.Models.Item", "Item")
-                        .WithMany("Magazines")
-                        .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK__Magazines__ItemI__440B1D61");
-
-                    b.Navigation("Item");
                 });
 
             modelBuilder.Entity("VirtualLibrary.Models.MagazineArticle", b =>
@@ -311,16 +293,12 @@ namespace VirtualLibrary.Migrations
                     b.HasOne("VirtualLibrary.Models.Article", "Article")
                         .WithMany("MagazineArticles")
                         .HasForeignKey("ArticleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK__MagazineA__Artic__47DBAE45");
+                        .HasConstraintName("FK__MagazineA__Artic__31EC6D26");
 
                     b.HasOne("VirtualLibrary.Models.Magazine", "Magazine")
                         .WithMany("MagazineArticles")
                         .HasForeignKey("MagazineId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK__MagazineA__Magaz__46E78A0C");
+                        .HasConstraintName("FK__MagazineA__Magaz__30F848ED");
 
                     b.Navigation("Article");
 
@@ -329,12 +307,17 @@ namespace VirtualLibrary.Migrations
 
             modelBuilder.Entity("VirtualLibrary.Models.MagazineCopy", b =>
                 {
+                    b.HasOne("VirtualLibrary.Models.Item", "Item")
+                        .WithMany("MagazineCopies")
+                        .HasForeignKey("ItemId")
+                        .HasConstraintName("FK__MagazineC__ItemI__403A8C7D");
+
                     b.HasOne("VirtualLibrary.Models.Magazine", "Magazine")
                         .WithMany("MagazineCopies")
                         .HasForeignKey("MagazineId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK__MagazineC__Magaz__5070F446");
+                        .HasConstraintName("FK__MagazineC__Magaz__3F466844");
+
+                    b.Navigation("Item");
 
                     b.Navigation("Magazine");
                 });
@@ -353,11 +336,11 @@ namespace VirtualLibrary.Migrations
 
             modelBuilder.Entity("VirtualLibrary.Models.Item", b =>
                 {
-                    b.Navigation("Articles");
+                    b.Navigation("ArticleCopies");
 
-                    b.Navigation("Books");
+                    b.Navigation("BookCopies");
 
-                    b.Navigation("Magazines");
+                    b.Navigation("MagazineCopies");
                 });
 
             modelBuilder.Entity("VirtualLibrary.Models.Magazine", b =>

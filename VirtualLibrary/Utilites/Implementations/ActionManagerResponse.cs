@@ -1,4 +1,4 @@
-﻿namespace VirtualLibrary.Utilites
+﻿namespace VirtualLibrary.Utilites.Implementations
 {
     public class ActionManagerResponse<T>
     {

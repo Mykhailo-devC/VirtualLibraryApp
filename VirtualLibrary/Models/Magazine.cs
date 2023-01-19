@@ -1,14 +1,13 @@
-﻿namespace VirtualLibrary.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace VirtualLibrary.Models;
 
 public partial class Magazine
 {
     public int Id { get; set; }
 
-    public int IssueNumber { get; set; }
-
-    public int ItemId { get; set; }
-
-    public virtual Item Item { get; set; }
+    public string Name { get; set; } = null!;
 
     public virtual ICollection<MagazineArticle> MagazineArticles { get; } = new List<MagazineArticle>();
 

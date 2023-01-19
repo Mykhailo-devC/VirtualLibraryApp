@@ -1,20 +1,21 @@
-﻿namespace VirtualLibrary.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace VirtualLibrary.Models;
 
 public partial class Item
 {
     public int Id { get; set; }
 
-    public string ItemName { get; set; } = null!;
-
     public DateTime PublishDate { get; set; }
 
     public int PublisherId { get; set; }
 
-    public virtual ICollection<Article> Articles { get; } = new List<Article>();
+    public virtual ICollection<ArticleCopy> ArticleCopies { get; } = new List<ArticleCopy>();
 
-    public virtual ICollection<Book> Books { get; } = new List<Book>();
+    public virtual ICollection<BookCopy> BookCopies { get; } = new List<BookCopy>();
 
-    public virtual ICollection<Magazine> Magazines { get; } = new List<Magazine>();
+    public virtual ICollection<MagazineCopy> MagazineCopies { get; } = new List<MagazineCopy>();
 
     public virtual Publisher Publisher { get; set; }
 }

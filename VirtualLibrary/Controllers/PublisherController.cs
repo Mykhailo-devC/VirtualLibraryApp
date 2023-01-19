@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using VirtualLibrary.Utilites;
+using VirtualLibrary.Utilites.Implementations;
+using VirtualLibrary.Utilites.Interfaces;
 
 namespace VirtualLibrary.Controllers
 {
@@ -17,7 +18,7 @@ namespace VirtualLibrary.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetPublisher()
         {
             var result = await _repository.GetAllAsync();
 
@@ -30,7 +31,7 @@ namespace VirtualLibrary.Controllers
         }
 
         [HttpGet("id")]
-        public async Task<IActionResult> GetAnswer([FromQuery] string id)
+        public async Task<IActionResult> GetPublisherById([FromQuery] string id)
         {
             if (string.IsNullOrWhiteSpace(id))
             {

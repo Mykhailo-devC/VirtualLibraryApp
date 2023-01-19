@@ -4,7 +4,7 @@ using VirtualLibrary.Utilites;
 
 namespace VirtualLibrary.Controllers
 {
-    [ApiController]
+    /*[ApiController]
     [Route("api/[controller]")]
     public class WeatherForecastController : ControllerBase
     {
@@ -33,5 +33,5 @@ namespace VirtualLibrary.Controllers
             Console.WriteLine(result);
 
         }
-    }
+    }*/
 }
