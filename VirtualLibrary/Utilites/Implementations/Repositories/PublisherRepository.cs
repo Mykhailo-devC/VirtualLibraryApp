@@ -9,36 +9,18 @@ namespace VirtualLibrary.Utilites.Implementations.Repositories
         {
         }
 
-        public override async Task<ActionManagerResponse<IEnumerable<Publisher>>> GetAllAsync()
+        public override async Task<IEnumerable<Publisher>> GetAllAsync()
         {
-            try
-            {
-                var result = new ActionManagerResponse<IEnumerable<Publisher>>
-                {
-                    Success = true,
-                    Message = "Data was read successfully",
-                    ActionResult = await _context.Publishers.ToListAsync()
-                };
+            var result = await _context.Publishers.ToListAsync();
 
-                _logger.LogInformation($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
-                        "'Publisher' data was read successfully");
+            _logger.LogInformation($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
+                    "'Publisher' data was read successfully");
 
-                return result;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
-                        "Failed read 'Publisher' data");
-                return new ActionManagerResponse<IEnumerable<Publisher>>
-                {
-                    Success = false,
-                    Message = "Data read error",
-                    Errors = new List<string> { ex.Message }
-                };
-            }
+            return result;
         }
-        public override async Task<ActionManagerResponse<Publisher>> GetByIdAsync(int id)
+        public override async Task<Publisher> GetByIdAsync(int id)
         {
+            // Include all items and published magazines, articles, books
             try
             {
                 var publisher = await _context.Publishers.FindAsync(id);
@@ -47,38 +29,22 @@ namespace VirtualLibrary.Utilites.Implementations.Repositories
                 {
                     _logger.LogWarning($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
                         $"'Publisher' data with id {id} was't found");
-                    return new ActionManagerResponse<Publisher>
-                    {
-                        Success = false,
-                        Message = $"Data read error. No entry with id {id}",
-                        Errors = new List<string> { "Result == null" }
-
-                    };
+                    return null;
                 }
 
                 _logger.LogInformation($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
                         $"'Publisher' data with id {id} was read successfully");
 
-                return new ActionManagerResponse<Publisher>
-                {
-                    Success = true,
-                    Message = "Data was read successfully",
-                    ActionResult = publisher
-                };
+                return publisher;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
                         $"Failed read 'Publisher' data [Id = {id}]");
-                return new ActionManagerResponse<Publisher>
-                {
-                    Success = false,
-                    Message = "Data read error",
-                    Errors = new List<string> { ex.Message }
-                };
+                return null;
             }
         }
-        public override async Task<ActionManagerResponse<Publisher>> CreateAsync(PublisherDTO publisherDto)
+        public override async Task<Publisher> CreateAsync(PublisherDTO publisherDto)
         {
             try
             {
@@ -94,26 +60,17 @@ namespace VirtualLibrary.Utilites.Implementations.Repositories
                 _logger.LogInformation($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
                     "'Publisher' data created successfully");
 
-                return new ActionManagerResponse<Publisher>
-                {
-                    Success = true,
-                    Message = "Data was added successfully",
-                    ActionResult = newPublisher
-                };
+                return newPublisher;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
                         "Failed adding 'Publisher' data");
-                return new ActionManagerResponse<Publisher>
-                {
-                    Success = false,
-                    Message = "Data add error",
-                    Errors = new List<string> { ex.Message }
-                };
+
+                return null;
             }
         }
-        public override async Task<ActionManagerResponse<Publisher>> UpdateAsync(int id, PublisherDTO publisherDto)
+        public override async Task<Publisher> UpdateAsync(int id, PublisherDTO publisherDto)
         {
             try
             {
@@ -123,12 +80,8 @@ namespace VirtualLibrary.Utilites.Implementations.Repositories
                 {
                     _logger.LogWarning($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
                         $"'Publisher' data with id {id} was't found");
-                    return new ActionManagerResponse<Publisher>
-                    {
-                        Success = false,
-                        Message = $"Not Found. No entry with id {id}",
-                        Errors = new List<string> { "Result == null" }
-                    };
+
+                    return null;
                 }
 
                 publisher.Name = publisherDto.Name;
@@ -137,29 +90,19 @@ namespace VirtualLibrary.Utilites.Implementations.Repositories
                 _logger.LogInformation($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
                         $"'Publisher' data updated successfully");
 
-                return new ActionManagerResponse<Publisher>
-                {
-                    Success = true,
-                    Message = "Data was updated successfully",
-                    ActionResult = publisher
-                };
+                return publisher;
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, $"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
+                _logger.LogError(ex, $"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
                         $"Failed updating 'Publisher' data [Id = {id}]");
 
-                return new ActionManagerResponse<Publisher>
-                {
-                    Success = false,
-                    Message = $"Instance wasn't updated",
-                    Errors = new List<string> { "Result == null" }
-
-                };
+                return null;
             }
         }
-        public override async Task<ActionManagerResponse<Publisher>> DeleteAsync(int id)
+        public override async Task<Publisher> DeleteAsync(int id)
         {
+            //Tip: you can`' delete a publisher is he has published some items. 'Item' table can't exist without publisher
             try
             {
                 var publisher = await _context.Publishers.FindAsync(id);
@@ -168,13 +111,8 @@ namespace VirtualLibrary.Utilites.Implementations.Repositories
                 {
                     _logger.LogWarning($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
                         $"'Publisher' data with id {id} was't found");
-                    return new ActionManagerResponse<Publisher>
-                    {
-                        Success = false,
-                        Message = $"Not Found. No entry with id {id}",
-                        Errors = new List<string> { "Result == null" }
 
-                    };
+                    return null;
                 }
 
                 _context.Publishers.Remove(publisher);
@@ -182,23 +120,15 @@ namespace VirtualLibrary.Utilites.Implementations.Repositories
 
                 _logger.LogInformation($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
                         $"'Publisher' data with id {id} was removed successfully");
-                return new ActionManagerResponse<Publisher>
-                {
-                    Success = true,
-                    Message = "Data was deleted successfully",
-                    ActionResult = publisher
-                };
+
+                return publisher;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
                         $"Failed deleting 'Publisher' data [Id = {id}]");
-                return new ActionManagerResponse<Publisher>
-                {
-                    Success = false,
-                    Message = "Data delete error",
-                    Errors = new List<string> { ex.Message }
-                };
+
+                return null;
             }
         }
     }

@@ -6,6 +6,10 @@ namespace VirtualLibrary.Models;
 
 public partial class VirtualLibraryDbContext : DbContext
 {
+    public VirtualLibraryDbContext()
+    {
+    }
+
     public VirtualLibraryDbContext(DbContextOptions<VirtualLibraryDbContext> options)
         : base(options)
     {
@@ -33,42 +37,41 @@ public partial class VirtualLibraryDbContext : DbContext
     {
         modelBuilder.Entity<Article>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Articles__3214EC07EEECDBC9");
+            entity.HasKey(e => e.Id).HasName("PK__Articles__3214EC073CFF80C0");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Author).HasMaxLength(100);
             entity.Property(e => e.Name).HasMaxLength(50);
         });
 
         modelBuilder.Entity<ArticleCopy>(entity =>
         {
-            entity.HasKey(e => e.CopyId).HasName("PK__ArticleC__C26CCCC52B9680AC");
+            entity.HasKey(e => e.CopyId).HasName("PK__ArticleC__C26CCCC5526975C3");
 
-            entity.HasIndex(e => e.Version, "UQ__ArticleC__0F540134C210F98E").IsUnique();
+            entity.HasIndex(e => e.Version, "UQ__ArticleC__0F54013433DBD72A").IsUnique();
 
             entity.HasOne(d => d.Article).WithMany(p => p.ArticleCopies)
                 .HasForeignKey(d => d.ArticleId)
                 .HasConstraintName("FK__ArticleCo__Artic__3A81B327");
 
-            entity.HasOne(d => d.Item).WithMany(p => p.ArticleCopies)
-                .HasForeignKey(d => d.ItemId)
+            entity.HasOne(d => d.Item).WithOne(p => p.ArticleCopy)
+                .HasForeignKey<ArticleCopy>(d => d.ItemId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__ArticleCo__ItemI__3B75D760");
         });
 
         modelBuilder.Entity<Book>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Books__3214EC073A6D69FC");
+            entity.HasKey(e => e.Id).HasName("PK__Books__3214EC07476BFDDD");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Author).HasMaxLength(100);
             entity.Property(e => e.Name).HasMaxLength(50);
         });
 
         modelBuilder.Entity<BookCopy>(entity =>
         {
-            entity.HasKey(e => e.CopyId).HasName("PK__BookCopi__C26CCCC5CA618E1F");
+            entity.HasKey(e => e.CopyId).HasName("PK__BookCopi__C26CCCC5B57804CE");
 
-            entity.HasIndex(e => e.Isbn, "UQ__BookCopi__447D36EA0C097A99").IsUnique();
+            entity.HasIndex(e => e.Isbn, "UQ__BookCopi__447D36EAF37893F6").IsUnique();
 
             entity.Property(e => e.Isbn).HasColumnName("ISBN");
 
@@ -76,14 +79,15 @@ public partial class VirtualLibraryDbContext : DbContext
                 .HasForeignKey(d => d.BookId)
                 .HasConstraintName("FK__BookCopie__BookI__35BCFE0A");
 
-            entity.HasOne(d => d.Item).WithMany(p => p.BookCopies)
-                .HasForeignKey(d => d.ItemId)
+            entity.HasOne(d => d.Item).WithOne(p => p.BookCopy)
+                .HasForeignKey<BookCopy>(d => d.ItemId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__BookCopie__ItemI__36B12243");
         });
 
         modelBuilder.Entity<Item>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Items__3214EC0751B5B6A0");
+            entity.HasKey(e => e.Id).HasName("PK__Items__3214EC0700F9F50B");
 
             entity.Property(e => e.PublishDate)
                 .HasDefaultValueSql("(getdate())")
@@ -91,52 +95,53 @@ public partial class VirtualLibraryDbContext : DbContext
 
             entity.HasOne(d => d.Publisher).WithMany(p => p.Items)
                 .HasForeignKey(d => d.PublisherId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Items__Publisher__276EDEB3");
         });
 
         modelBuilder.Entity<Magazine>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Magazine__3214EC0759E5CCA3");
+            entity.HasKey(e => e.Id).HasName("PK__Magazine__3214EC07B650E33C");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Name).HasMaxLength(50);
         });
 
         modelBuilder.Entity<MagazineArticle>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Magazine__3214EC070EA99B31");
+            entity.HasKey(e => e.Id).HasName("PK__Magazine__3214EC0783FA6995");
 
             entity.ToTable("MagazineArticle");
 
-            entity.HasIndex(e => e.IssueNumber, "UQ__Magazine__5703F26C46E00E74").IsUnique();
-
             entity.HasOne(d => d.Article).WithMany(p => p.MagazineArticles)
                 .HasForeignKey(d => d.ArticleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__MagazineA__Artic__31EC6D26");
 
             entity.HasOne(d => d.Magazine).WithMany(p => p.MagazineArticles)
                 .HasForeignKey(d => d.MagazineId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__MagazineA__Magaz__30F848ED");
         });
 
         modelBuilder.Entity<MagazineCopy>(entity =>
         {
-            entity.HasKey(e => e.CopyId).HasName("PK__Magazine__C26CCCC55F07A4AA");
+            entity.HasKey(e => e.CopyId).HasName("PK__Magazine__C26CCCC53AD7F679");
 
-            entity.HasIndex(e => e.IssureNumber, "UQ__Magazine__F1B3FFCC9771C23A").IsUnique();
+            entity.HasIndex(e => e.IssureNumber, "UQ__Magazine__F1B3FFCC737B8277").IsUnique();
 
-            entity.HasOne(d => d.Item).WithMany(p => p.MagazineCopies)
-                .HasForeignKey(d => d.ItemId)
+            entity.HasOne(d => d.Item).WithOne(p => p.MagazineCopy)
+                .HasForeignKey<MagazineCopy>(d => d.ItemId)
                 .HasConstraintName("FK__MagazineC__ItemI__403A8C7D");
 
             entity.HasOne(d => d.Magazine).WithMany(p => p.MagazineCopies)
                 .HasForeignKey(d => d.MagazineId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__MagazineC__Magaz__3F466844");
         });
 
         modelBuilder.Entity<Publisher>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Publishe__3214EC0789315C32");
+            entity.HasKey(e => e.Id).HasName("PK__Publishe__3214EC073E4D3E3A");
 
             entity.Property(e => e.Name).HasMaxLength(50);
         });

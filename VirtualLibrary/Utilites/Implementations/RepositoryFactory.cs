@@ -16,19 +16,31 @@ namespace VirtualLibrary.Utilites.Implementations
 
         public IRepository<T, K> GetRepository<T, K>() where T : class
         {
-            var genericType = typeof(T);
+            var modelType = typeof(T);
+            var dtoType = typeof(K);
 
-            if (genericType == typeof(Article))
+            if (modelType == typeof(Book) && dtoType == typeof(BookDTO))
             {
-                //var repo = new ArticleRepository(_context, _logger);
-                return null;
+                var repo = new BookRepository(_context, _logger);
+                return (IRepository<T, K>)repo;
             }
-            else if (genericType == typeof(Publisher))
+            else if (modelType == typeof(Publisher) && dtoType == typeof(PublisherDTO))
             {
                 var repo = new PublisherRepository(_context, _logger);
                 return (IRepository<T, K>)repo;
             }
-            return null;
+            else if (modelType == typeof(Article) && dtoType == typeof(ArticleDTO))
+            {
+                var repo = new ArticleRepository(_context, _logger);
+                return (IRepository<T, K>)repo;
+            }
+            else if (modelType == typeof(Magazine) && dtoType == typeof(MagazineDTO))
+            {
+                var repo = new MagazineRepository(_context, _logger);
+                return (IRepository<T, K>)repo;
+            }
+
+            throw new Exception($"Incorrect repository type, <{modelType.Name},{dtoType.Name}>");
         }
     }
 }

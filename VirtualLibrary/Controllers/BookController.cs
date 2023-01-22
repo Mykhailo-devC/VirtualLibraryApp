@@ -6,19 +6,19 @@ namespace VirtualLibrary.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PublisherController : ControllerBase
+    public class BookController : ControllerBase
     {
-        private readonly ILogger<PublisherController> _logger;
-        private readonly IDataStore<Publisher, PublisherDTO> _dataStore;
+        private readonly ILogger<BookController> _logger;
+        private readonly IDataStore<Book, BookDTO> _dataStore;
 
-        public PublisherController(ILogger<PublisherController> logger, IDataStore<Publisher, PublisherDTO> dataStore)
+        public BookController(ILogger<BookController> logger, IDataStore<Book, BookDTO> dataStore)
         {
             _logger = logger;
-            _dataStore =  dataStore;
+            _dataStore = dataStore;
         }
 
         [HttpGet("ordered")]
-        public async Task<IActionResult> GetPublisher([FromHeader] string field)
+        public async Task<IActionResult> GetBooks([FromHeader] string field)
         {
             var IsParsed = FieldParser.TryParseField(field, out var parsedField);
 
@@ -37,7 +37,7 @@ namespace VirtualLibrary.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetPublisher()
+        public async Task<IActionResult> GetBooks()
         {
             var result = await _dataStore.GetDataAsync();
 
@@ -50,7 +50,7 @@ namespace VirtualLibrary.Controllers
         }
 
         /*[HttpGet("id")]
-        public async Task<IActionResult> GetPublisherById([FromQuery] string id)
+        public async Task<IActionResult> GetBookByID([FromQuery] string id)
         {
             var isInteger = int.TryParse(id, out int parsedId);
 
@@ -59,26 +59,26 @@ namespace VirtualLibrary.Controllers
                 return BadRequest("Incorect Id");
             }
 
-            var result = await _dataStore.GetDataAsync();
+            var result = await _repository.GetByIdAsync(parsedId);
 
-            if(!result.Success)
+            if (!result.Success)
             {
                 return BadRequest(result);
             }
 
-            var succseedResult = (ActionManagerResponse<Publisher>)result;
+            var succseedResult = (ActionManagerResponse<Book>)result;
             return Ok(succseedResult.ActionResult);
         }*/
 
         [HttpPost]
-        public async Task<IActionResult> PostPublisher([FromBody]PublisherDTO publisherDto)
+        public async Task<IActionResult> PostBook([FromBody] BookDTO bookDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var result = await _dataStore.AddDataAsync(publisherDto);
+            var result = await _dataStore.AddDataAsync(bookDto);
 
             if (!result.Success)
             {
@@ -88,8 +88,8 @@ namespace VirtualLibrary.Controllers
             return Ok(result.ActionResult);
         }
 
-        [HttpPut("id")]
-        public async Task<ActionResult> PutPublisher([FromQuery] string id, [FromBody] PublisherDTO publisherDto)
+        /*[HttpPut("id")]
+        public async Task<ActionResult> PutBook([FromQuery] string id, [FromBody] BookDTO bookDto)
         {
             if (!ModelState.IsValid)
             {
@@ -103,18 +103,19 @@ namespace VirtualLibrary.Controllers
                 return BadRequest("Incorect Id");
             }
 
-            var result = await _dataStore.UpdateDataAsync(parsedId, publisherDto);
+            var result = await _repository.UpdateAsync(parsedId, bookDto);
 
             if (!result.Success)
             {
                 return BadRequest(result);
             }
 
-            return Ok(result.ActionResult);
-        }
+            var succseedResult = (ActionManagerResponse<Book>)result;
+            return Ok(succseedResult.ActionResult);
+        }*/
 
         [HttpDelete("id")]
-        public async Task<IActionResult> DeletePublisher([FromQuery] string id)
+        public async Task<IActionResult> DeleteBook([FromQuery] string id)
         {
             var isInteger = int.TryParse(id, out int parsedId);
 

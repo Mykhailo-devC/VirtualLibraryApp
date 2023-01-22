@@ -13,7 +13,7 @@ public partial class MagazineCopy
 
     public int ItemId { get; set; }
 
-    public virtual Item Item { get; set; }
+    public virtual Item Item { get; set; } = null!;
 
-    public virtual Magazine Magazine { get; set; }
+    public virtual Magazine Magazine { get; set; } = null!;
 }

@@ -2,6 +2,9 @@ global using VirtualLibrary.Models;
 global using Serilog;
 using Microsoft.EntityFrameworkCore;
 using VirtualLibrary.Utilites.Implementations;
+using System.Text.Json.Serialization;
+using VirtualLibrary.Utilites.Interfaces;
+using VirtualLibrary.Utilites.Implementations.DataStore;
 
 class Program
 {
@@ -16,10 +19,13 @@ class Program
         {
             opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
         });
-        builder.Services.AddControllers();
+        builder.Services.AddControllers().AddJsonOptions(opt =>
+                                           opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-        builder.Services.AddScoped<RepositoryFactory>();
+
+        AddUserServices(builder);
+
 
         var app = builder.Build();
 
@@ -38,5 +44,15 @@ class Program
         app.MapControllers();
 
         app.Run();
+    }
+
+    private static void AddUserServices(WebApplicationBuilder builder)
+    {
+        builder.Services.AddScoped<RepositoryFactory>();
+
+        builder.Services.AddScoped<IDataStore<Book, BookDTO>, BookDataStore>();
+        builder.Services.AddScoped<IDataStore<Article, ArticleDTO>, ArticleDataStore>();
+        builder.Services.AddScoped<IDataStore<Magazine, MagazineDTO>, MagazineDataStore>();
+        builder.Services.AddScoped<IDataStore<Publisher, PublisherDTO>, PublisherDataStore>();
     }
 }

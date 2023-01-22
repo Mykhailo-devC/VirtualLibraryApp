@@ -1,4 +1,7 @@
-﻿namespace VirtualLibrary.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace VirtualLibrary.Models;
 
 public partial class ArticleCopy
 {
@@ -10,7 +13,7 @@ public partial class ArticleCopy
 
     public int ItemId { get; set; }
 
-    public virtual Article Article { get; set; }
+    public virtual Article Article { get; set; } = null!;
 
-    public virtual Item Item { get; set; }
+    public virtual Item Item { get; set; } = null!;
 }

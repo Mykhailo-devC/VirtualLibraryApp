@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using VirtualLibrary.Utilites.Interfaces;
+﻿using VirtualLibrary.Utilites.Interfaces;
 
 namespace VirtualLibrary.Utilites.Implementations.Repositories
 {
@@ -13,17 +12,15 @@ namespace VirtualLibrary.Utilites.Implementations.Repositories
             _logger = logger;
         }
 
-        public abstract Task<ActionManagerResponse<IEnumerable<T>>> GetAllAsync();
-        public abstract Task<ActionManagerResponse<T>> GetByIdAsync(int id);
-        public abstract Task<ActionManagerResponse<T>> CreateAsync(K entityDto);
-        public abstract Task<ActionManagerResponse<T>> UpdateAsync(int id, K entityDto);
-        public abstract Task<ActionManagerResponse<T>> DeleteAsync(int id);
+        public abstract Task<IEnumerable<T>> GetAllAsync();
+        public abstract Task<T> GetByIdAsync(int id);
+        public abstract Task<T> CreateAsync(K entityDto);
+        public abstract Task<T> UpdateAsync(int id, K entityDto);
+        public abstract Task<T> DeleteAsync(int id);
 
         public async Task SaveAsync()
         {
             await _context.SaveChangesAsync();
-            _logger.LogInformation($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
-                        $"'{typeof(T).Name}' data was saved");
         }
     }
 }
