@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using VirtualLibrary.Logic.Interface;
 using VirtualLibrary.Utilites.Implementations.Filters.ModelFields;
-using VirtualLibrary.Utilites.Interfaces;
-
 namespace VirtualLibrary.Controllers
 {
     [Route("api/[controller]")]
@@ -9,9 +8,9 @@ namespace VirtualLibrary.Controllers
     public class ArticleController : ControllerBase
     {
         private readonly ILogger<ArticleController> _logger;
-        private readonly IDataStore<Article, ArticleDTO> _dataStore;
+        private readonly IModelLogic<Article, ArticleDTO> _dataStore;
 
-        public ArticleController(ILogger<ArticleController> logger, IDataStore<Article, ArticleDTO> dataStore)
+        public ArticleController(ILogger<ArticleController> logger, IModelLogic<Article, ArticleDTO> dataStore)
         {
             _logger = logger;
             _dataStore = dataStore;
@@ -26,14 +25,14 @@ namespace VirtualLibrary.Controllers
             {
                 return BadRequest($"{parsedField} field!");
             }
-            var result = await _dataStore.GetSortedDataAsync(parsedField);
+            var result = await _dataStore.GetSortedDataAsync(field);
 
             if (!result.Success)
             {
                 return BadRequest(result);
             }
 
-            return Ok(result.ActionResult);
+            return Ok(result);
         }
 
         [HttpGet]
@@ -46,11 +45,11 @@ namespace VirtualLibrary.Controllers
                 return BadRequest(result);
             }
 
-            return Ok(result.ActionResult);
+            return Ok(result);
         }
 
-        /*[HttpGet("id")]
-        public async Task<IActionResult> GetBookByID([FromQuery] string id)
+        [HttpGet("id")]
+        public async Task<IActionResult> GetArticleByID([FromQuery] string id)
         {
             var isInteger = int.TryParse(id, out int parsedId);
 
@@ -59,16 +58,15 @@ namespace VirtualLibrary.Controllers
                 return BadRequest("Incorect Id");
             }
 
-            var result = await _repository.GetByIdAsync(parsedId);
+            var result = await _dataStore.GetDatabyId(parsedId);
 
             if (!result.Success)
             {
                 return BadRequest(result);
             }
 
-            var succseedResult = (ActionManagerResponse<Book>)result;
-            return Ok(succseedResult.ActionResult);
-        }*/
+            return Ok(result);
+        }
 
         [HttpPost]
         public async Task<IActionResult> PostArticle([FromBody] ArticleDTO articleDto)
@@ -85,7 +83,7 @@ namespace VirtualLibrary.Controllers
                 return BadRequest(result);
             }
 
-            return Ok(result.ActionResult);
+            return Ok(result);
         }
 
         /*[HttpPut("id")]
@@ -131,7 +129,7 @@ namespace VirtualLibrary.Controllers
                 return BadRequest(result);
             }
 
-            return Ok(result.ActionResult);
+            return Ok(result);
         }
     }
 }

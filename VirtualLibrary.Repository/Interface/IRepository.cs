@@ -1,6 +1,6 @@
-﻿using VirtualLibrary.Utilites.Implementations;
+﻿global using VirtualLibrary.Models;
 
-namespace VirtualLibrary.Utilites.Interfaces
+namespace VirtualLibrary.Repository.Interface
 {
     public interface IRepository<T, K>
     {

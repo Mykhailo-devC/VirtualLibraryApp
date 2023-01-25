@@ -1,15 +1,16 @@
-﻿using System.Reflection;
-using VirtualLibrary.Utilites.Implementations.Filters.ModelFields;
+﻿using Microsoft.Extensions.Logging;
+using System.Reflection;
+using VirtualLibrary.Repository.Interface;
 
-namespace VirtualLibrary.Utilites.Implementations.DataStore
+namespace VirtualLibrary.Logic.Implementation
 {
-    public class MagazineDataStore : DataStoreBase<Magazine, MagazineDTO>
+    public class MagazineLogic : ModelLogicBase<Magazine, MagazineDTO>
     {
-        public MagazineDataStore(RepositoryFactory factory, ILogger<DataStoreBase<Magazine, MagazineDTO>> logger) : base(factory, logger)
+        public MagazineLogic(IRepository<Magazine, MagazineDTO> repository, ILogger<ModelLogicBase<Magazine, MagazineDTO>> logger) : base(repository, logger)
         {
         }
 
-        public override async Task<ActionManagerResponse<IEnumerable<Magazine>>> GetDataAsync()
+        public override async Task<ActionManagerResponse> GetDataAsync()
         {
             try
             {
@@ -27,7 +28,7 @@ namespace VirtualLibrary.Utilites.Implementations.DataStore
                 _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
                         "Failed read 'Magazine' data");
 
-                return new ActionManagerResponse<IEnumerable<Magazine>>
+                return new ActionManagerResponse
                 {
                     Success = false,
                     Message = "Data read error",
@@ -36,7 +37,34 @@ namespace VirtualLibrary.Utilites.Implementations.DataStore
             }
         }
 
-        public override async Task<ActionManagerResponse<IEnumerable<Magazine>>> GetSortedDataAsync(ModelFields modelField)
+        public override async Task<ActionManagerResponse> GetDatabyId(int id)
+        {
+            try
+            {
+                var magazine = await _repository.GetByIdAsync(id);
+
+                return new ActionManagerResponse<Magazine>
+                {
+                    Success = true,
+                    Message = "Data was read successfully",
+                    ActionResult = magazine
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
+                        "Failed read 'Magazine' data");
+
+                return new ActionManagerResponse
+                {
+                    Success = false,
+                    Message = "Data read error",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+        public override async Task<ActionManagerResponse> GetSortedDataAsync(string modelField)
         {
             try
             {
@@ -46,7 +74,7 @@ namespace VirtualLibrary.Utilites.Implementations.DataStore
                 {
                     Success = true,
                     Message = "Data was read successfully",
-                    ActionResult = magazines.OrderBy(FieldParser.MagazineFields[modelField])
+                    ActionResult = magazines
                 };
             }
             catch (Exception ex)
@@ -54,7 +82,7 @@ namespace VirtualLibrary.Utilites.Implementations.DataStore
                 _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
                         "Failed read 'Magazine' data");
 
-                return new ActionManagerResponse<IEnumerable<Magazine>>
+                return new ActionManagerResponse
                 {
                     Success = false,
                     Message = "Data read error",
@@ -63,13 +91,13 @@ namespace VirtualLibrary.Utilites.Implementations.DataStore
             }
         }
 
-        public override async Task<ActionManagerResponse<Magazine>> AddDataAsync(MagazineDTO entityDTO)
+        public override async Task<ActionManagerResponse> AddDataAsync(MagazineDTO entityDTO)
         {
             var newMagazine = await _repository.CreateAsync(entityDTO);
 
             if (newMagazine == null)
             {
-                return new ActionManagerResponse<Magazine>
+                return new ActionManagerResponse
                 {
                     Success = false,
                     Message = "Data creating transaction was interrapted",
@@ -84,13 +112,13 @@ namespace VirtualLibrary.Utilites.Implementations.DataStore
             };
         }
 
-        public override async Task<ActionManagerResponse<Magazine>> DeleteDataAsync(int id)
+        public override async Task<ActionManagerResponse> DeleteDataAsync(int id)
         {
             var deletedMagazine = await _repository.DeleteAsync(id);
 
             if (deletedMagazine == null)
             {
-                return new ActionManagerResponse<Magazine>
+                return new ActionManagerResponse
                 {
                     Success = false,
                     Message = "Data deleting transaction was interrapted",
@@ -107,7 +135,7 @@ namespace VirtualLibrary.Utilites.Implementations.DataStore
 
         
 
-        public override Task<ActionManagerResponse<Magazine>> UpdateDataAsync(int id, MagazineDTO entityDTO)
+        public override Task<ActionManagerResponse> UpdateDataAsync(int id, MagazineDTO entityDTO)
         {
             throw new NotImplementedException();
         }

@@ -1,0 +1,8 @@
+.vs/
+VirtualLibrary/bin/
+/VirtualLibrary/obj
+VirtualLibraryApp.sln
+VirtualLibrary/Migrations/
+VirtualLibrary.Logic/obj/
+VirtualLibrary.Models/obj/
+VirtualLibrary.Repository/obj/

@@ -1,15 +1,16 @@
-﻿using System.Reflection;
-using VirtualLibrary.Utilites.Implementations.Filters.ModelFields;
+﻿using Microsoft.Extensions.Logging;
+using System.Reflection;
+using VirtualLibrary.Repository.Interface;
 
-namespace VirtualLibrary.Utilites.Implementations.DataStore
+namespace VirtualLibrary.Logic.Implementation
 {
-    public class PublisherDataStore : DataStoreBase<Publisher, PublisherDTO>
+    public class PublisherLogic : ModelLogicBase<Publisher, PublisherDTO>
     {
-        public PublisherDataStore(RepositoryFactory factory, ILogger<DataStoreBase<Publisher, PublisherDTO>> logger) : base(factory, logger)
+        public PublisherLogic(IRepository<Publisher, PublisherDTO> repository, ILogger<ModelLogicBase<Publisher, PublisherDTO>> logger) : base(repository, logger)
         {
         }
 
-        public override async Task<ActionManagerResponse<IEnumerable<Publisher>>> GetDataAsync()
+        public override async Task<ActionManagerResponse> GetDataAsync()
         {
             try
             {
@@ -27,7 +28,7 @@ namespace VirtualLibrary.Utilites.Implementations.DataStore
                 _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
                         "Failed read 'Publisher' data");
 
-                return new ActionManagerResponse<IEnumerable<Publisher>>
+                return new ActionManagerResponse
                 {
                     Success = false,
                     Message = "Data read error",
@@ -35,7 +36,35 @@ namespace VirtualLibrary.Utilites.Implementations.DataStore
                 };
             }
         }
-        public override async Task<ActionManagerResponse<IEnumerable<Publisher>>> GetSortedDataAsync(ModelFields modelField)
+
+        public override async Task<ActionManagerResponse> GetDatabyId(int id)
+        {
+            try
+            {
+                var publishers = await _repository.GetByIdAsync(id);
+
+                return new ActionManagerResponse<Publisher>
+                {
+                    Success = true,
+                    Message = "Data was read successfully",
+                    ActionResult = publishers
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
+                        "Failed read 'Publisher' data");
+
+                return new ActionManagerResponse
+                {
+                    Success = false,
+                    Message = "Data read error",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+        public override async Task<ActionManagerResponse> GetSortedDataAsync(string modelField)
         {
             try
             {
@@ -45,7 +74,7 @@ namespace VirtualLibrary.Utilites.Implementations.DataStore
                 {
                     Success = true,
                     Message = "Data was read successfully",
-                    ActionResult = publishers.OrderBy(FieldParser.PublisherFields[modelField])
+                    ActionResult = publishers
                 };
             }
             catch (Exception ex)
@@ -53,7 +82,7 @@ namespace VirtualLibrary.Utilites.Implementations.DataStore
                 _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
                         "Failed read 'Publisher' data");
 
-                return new ActionManagerResponse<IEnumerable<Publisher>>
+                return new ActionManagerResponse
                 {
                     Success = false,
                     Message = "Data read error",
@@ -62,13 +91,13 @@ namespace VirtualLibrary.Utilites.Implementations.DataStore
             }
         }
 
-        public override async Task<ActionManagerResponse<Publisher>> AddDataAsync(PublisherDTO entityDTO)
+        public override async Task<ActionManagerResponse> AddDataAsync(PublisherDTO entityDTO)
         {
             var newPublisher = await _repository.CreateAsync(entityDTO);
 
             if (newPublisher == null)
             {
-                return new ActionManagerResponse<Publisher>
+                return new ActionManagerResponse
                 {
                     Success = false,
                     Message = "Data creating transaction was interrapted",
@@ -83,13 +112,13 @@ namespace VirtualLibrary.Utilites.Implementations.DataStore
             };
         }
 
-        public override async Task<ActionManagerResponse<Publisher>> UpdateDataAsync(int id, PublisherDTO entityDTO)
+        public override async Task<ActionManagerResponse> UpdateDataAsync(int id, PublisherDTO entityDTO)
         {
             var updatedPublisher = await _repository.UpdateAsync(id, entityDTO);
 
             if (updatedPublisher == null)
             {
-                return new ActionManagerResponse<Publisher>
+                return new ActionManagerResponse
                 {
                     Success = false,
                     Message = "Data updating transaction was interrapted",
@@ -104,13 +133,13 @@ namespace VirtualLibrary.Utilites.Implementations.DataStore
             };
         }
 
-        public override async Task<ActionManagerResponse<Publisher>> DeleteDataAsync(int id)
+        public override async Task<ActionManagerResponse> DeleteDataAsync(int id)
         {
             var deletedPublisher = await _repository.DeleteAsync(id);
 
             if (deletedPublisher == null)
             {
-                return new ActionManagerResponse<Publisher>
+                return new ActionManagerResponse
                 {
                     Success = false,
                     Message = "Data deleting transaction was interrapted",
@@ -124,5 +153,7 @@ namespace VirtualLibrary.Utilites.Implementations.DataStore
                 ActionResult = deletedPublisher
             };
         }
+
+        
     }
 }

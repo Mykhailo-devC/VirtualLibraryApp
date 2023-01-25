@@ -1,6 +1,6 @@
 ﻿namespace VirtualLibrary.Utilites.Implementations.Filters.ModelFields
 {
-    public enum ModelFields
+    public enum ModelField
     {
         Undefined,
         Author,

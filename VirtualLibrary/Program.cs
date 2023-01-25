@@ -1,10 +1,12 @@
 global using VirtualLibrary.Models;
 global using Serilog;
+
 using Microsoft.EntityFrameworkCore;
-using VirtualLibrary.Utilites.Implementations;
 using System.Text.Json.Serialization;
-using VirtualLibrary.Utilites.Interfaces;
-using VirtualLibrary.Utilites.Implementations.DataStore;
+using VirtualLibrary.Repository.Interface;
+using VirtualLibrary.Repository.Implementation;
+using VirtualLibrary.Logic.Implementation;
+using VirtualLibrary.Logic.Interface;
 
 class Program
 {
@@ -48,11 +50,14 @@ class Program
 
     private static void AddUserServices(WebApplicationBuilder builder)
     {
-        builder.Services.AddScoped<RepositoryFactory>();
+        builder.Services.AddSingleton<IRepository<Book, BookDTO>, BookRepository>();
+        builder.Services.AddSingleton<IRepository<Article, ArticleDTO>, ArticleRepository>();
+        builder.Services.AddSingleton<IRepository<Magazine, MagazineDTO>, MagazineRepository>();
+        builder.Services.AddSingleton<IRepository<Publisher, PublisherDTO>, PublisherRepository>();
 
-        builder.Services.AddScoped<IDataStore<Book, BookDTO>, BookDataStore>();
-        builder.Services.AddScoped<IDataStore<Article, ArticleDTO>, ArticleDataStore>();
-        builder.Services.AddScoped<IDataStore<Magazine, MagazineDTO>, MagazineDataStore>();
-        builder.Services.AddScoped<IDataStore<Publisher, PublisherDTO>, PublisherDataStore>();
+        builder.Services.AddSingleton<IModelLogic<Book, BookDTO>, BookLogic>();
+        builder.Services.AddSingleton<IModelLogic<Article, ArticleDTO>, ArticleLogic>();
+        builder.Services.AddSingleton<IModelLogic<Magazine, MagazineDTO>, MagazineLogic>();
+        builder.Services.AddSingleton<IModelLogic<Publisher, PublisherDTO>, PublisherLogic>();
     }
 }

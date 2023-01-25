@@ -1,11 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Reflection;
+using VirtualLibrary.Models;
 
-namespace VirtualLibrary.Utilites.Implementations.Repositories
+namespace VirtualLibrary.Repository.Implementation
 {
     public class PublisherRepository : RepositoryBase<Publisher, PublisherDTO>
     {
-        public PublisherRepository(VirtualLibraryDbContext context, ILogger<RepositoryFactory> logger) : base(context, logger)
+        public PublisherRepository(VirtualLibraryDbContext context, ILogger<RepositoryBase<Publisher, PublisherDTO>> logger) : base(context, logger)
         {
         }
 
@@ -20,10 +22,15 @@ namespace VirtualLibrary.Utilites.Implementations.Repositories
         }
         public override async Task<Publisher> GetByIdAsync(int id)
         {
-            // Include all items and published magazines, articles, books
             try
             {
-                var publisher = await _context.Publishers.FindAsync(id);
+                await _context.BookCopies.Include(b => b.Book).Where(b => b.Item.PublisherId == id).LoadAsync();
+                await _context.ArticleCopies.Include(b => b.Article).Where(b => b.Item.PublisherId == id).LoadAsync();
+                await _context.MagazineCopies.Include(b => b.Magazine).Where(b => b.Item.PublisherId == id).LoadAsync();
+
+                var publisher = await _context.Publishers
+                    .Include(p => p.Items)
+                    .FirstOrDefaultAsync(p => p.Id == id);
 
                 if (publisher == null)
                 {
@@ -102,7 +109,7 @@ namespace VirtualLibrary.Utilites.Implementations.Repositories
         }
         public override async Task<Publisher> DeleteAsync(int id)
         {
-            //Tip: you can`' delete a publisher is he has published some items. 'Item' table can't exist without publisher
+            //Tip: you can`' delete a publisher is he has published some items. 'Item' table can't exist without publisher TODO: enable Item`s nullable Publisher field
             try
             {
                 var publisher = await _context.Publishers.FindAsync(id);

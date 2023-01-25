@@ -1,20 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Reflection;
 using VirtualLibrary.Models;
 
-namespace VirtualLibrary.Utilites.Implementations.Repositories
+namespace VirtualLibrary.Repository.Implementation
 {
     public class MagazineRepository : RepositoryBase<Magazine, MagazineDTO>
     {
-        public MagazineRepository(VirtualLibraryDbContext context, ILogger<RepositoryFactory> logger) : base(context, logger)
+        public MagazineRepository(VirtualLibraryDbContext context, ILogger<RepositoryBase<Magazine, MagazineDTO>> logger) : base(context, logger)
         {
         }
 
         public override async Task<IEnumerable<Magazine>> GetAllAsync()
         {
             var magazines = await _context.Magazines
-                    .Include(a => a.MagazineArticles)
-                    .ThenInclude(a => a.Article)
                     .Include(a => a.MagazineCopies)
                     .ThenInclude(a => a.Item)
                     .ThenInclude(a => a.Publisher)
@@ -174,7 +173,9 @@ namespace VirtualLibrary.Utilites.Implementations.Repositories
 
                     if (!magazine.MagazineCopies.Any())
                     {
+                        _context.MagazineArticles.RemoveRange(magazine.MagazineArticles);
                         _context.Magazines.Remove(magazine);
+
                         await SaveAsync();
                     }
 

@@ -1,12 +1,14 @@
-﻿using VirtualLibrary.Utilites.Interfaces;
+﻿global using VirtualLibrary.Models;
+using Microsoft.Extensions.Logging;
+using VirtualLibrary.Repository.Interface;
 
-namespace VirtualLibrary.Utilites.Implementations.Repositories
+namespace VirtualLibrary.Repository.Implementation
 {
     public abstract class RepositoryBase<T, K> : IRepository<T, K> where T : class
     {
         protected VirtualLibraryDbContext _context;
-        protected ILogger<RepositoryFactory> _logger;
-        public RepositoryBase(VirtualLibraryDbContext context, ILogger<RepositoryFactory> logger)
+        protected ILogger<RepositoryBase<T, K>> _logger;
+        public RepositoryBase(VirtualLibraryDbContext context, ILogger<RepositoryBase<T, K>> logger)
         {
             _context = context;
             _logger = logger;

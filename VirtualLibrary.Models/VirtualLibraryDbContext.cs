@@ -73,7 +73,7 @@ public partial class VirtualLibraryDbContext : DbContext
 
             entity.HasIndex(e => e.Isbn, "UQ__BookCopi__447D36EAF37893F6").IsUnique();
 
-            entity.Property(e => e.Isbn).HasColumnName("ISBN");
+            entity.Property(e => e.Isbn).HasColumnName("ISBN");//!
 
             entity.HasOne(d => d.Book).WithMany(p => p.BookCopies)
                 .HasForeignKey(d => d.BookId)
@@ -95,7 +95,7 @@ public partial class VirtualLibraryDbContext : DbContext
 
             entity.HasOne(d => d.Publisher).WithMany(p => p.Items)
                 .HasForeignKey(d => d.PublisherId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.ClientSetNull) //delete.cascade
                 .HasConstraintName("FK__Items__Publisher__276EDEB3");
         });
 

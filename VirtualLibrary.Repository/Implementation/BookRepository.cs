@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Reflection;
 using VirtualLibrary.Models;
 
-namespace VirtualLibrary.Utilites.Implementations.Repositories
+namespace VirtualLibrary.Repository.Implementation
 {
     public class BookRepository : RepositoryBase<Book, BookDTO>
     {
-        public BookRepository(VirtualLibraryDbContext context, ILogger<RepositoryFactory> logger) : base(context, logger)
+        public BookRepository(VirtualLibraryDbContext context, ILogger<RepositoryBase<Book, BookDTO>> logger) : base(context, logger)
         {
         }
 
@@ -245,8 +246,6 @@ namespace VirtualLibrary.Utilites.Implementations.Repositories
                         _context.Books.Remove(book);
                         await SaveAsync();
                     }
-
-
 
                     await transaction.CommitAsync();
                     _logger.LogInformation($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +

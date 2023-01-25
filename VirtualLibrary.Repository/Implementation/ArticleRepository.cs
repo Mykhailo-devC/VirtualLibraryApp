@@ -1,20 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Reflection;
+using VirtualLibrary.Models;
 
-namespace VirtualLibrary.Utilites.Implementations.Repositories
+namespace VirtualLibrary.Repository.Implementation
 {
     public class ArticleRepository : RepositoryBase<Article, ArticleDTO>
     {
-        public ArticleRepository(VirtualLibraryDbContext context, ILogger<RepositoryFactory> logger) : base(context, logger)
+        public ArticleRepository(VirtualLibraryDbContext context, ILogger<RepositoryBase<Article, ArticleDTO>> logger) : base(context, logger)
         {
         }
 
         public override async Task<IEnumerable<Article>> GetAllAsync()
         {
-            //TODO: bring including magazines tp GetById method
             var articles = await _context.Articles
-                    .Include(a => a.MagazineArticles)
-                    .ThenInclude(a => a.Magazine)
                     .Include(a => a.ArticleCopies)
                     .ThenInclude(a => a.Item)
                     .ThenInclude(a => a.Publisher)
@@ -143,7 +142,6 @@ namespace VirtualLibrary.Utilites.Implementations.Repositories
 
         public override async Task<Article> DeleteAsync(int id)
         {
-            // TODO delete MagazineArticle entry too
             using (var transaction = _context.Database.BeginTransaction())
             {
                 try
@@ -170,13 +168,16 @@ namespace VirtualLibrary.Utilites.Implementations.Repositories
                         throw new Exception($"Article with id {article.Id} has no copies");
                     }
 
+                    
                     _context.Items.Remove(articleCopy.Item);
                     _context.ArticleCopies.Remove(articleCopy);
                     await SaveAsync();
 
                     if (!article.ArticleCopies.Any())
                     {
+                        _context.MagazineArticles.RemoveRange(article.MagazineArticles);
                         _context.Articles.Remove(article);
+                        
                         await SaveAsync();
                     }
 
