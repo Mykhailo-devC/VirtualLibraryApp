@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
-using VirtualLibrary.Models;
 
 namespace VirtualLibrary.Repository.Implementation
 {
@@ -137,6 +136,19 @@ namespace VirtualLibrary.Repository.Implementation
 
                 return null;
             }
+        }
+
+        public override bool CheckModelField(Publisher entity, string field)
+        {
+            var listOfNames = new List<string>();
+
+            listOfNames.AddRange(GetPropertyNames(entity));
+
+            if (listOfNames.Contains(field))
+            {
+                return true;
+            }
+            else return false;
         }
     }
 }

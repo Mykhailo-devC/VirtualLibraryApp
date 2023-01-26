@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VirtualLibrary.Logic.Interface;
-using VirtualLibrary.Utilites.Implementations.Filters.ModelFields;
 
 namespace VirtualLibrary.Controllers
 {
@@ -20,12 +19,6 @@ namespace VirtualLibrary.Controllers
         [HttpGet("ordered")]
         public async Task<IActionResult> GetPublisher([FromHeader] string field)
         {
-            var IsParsed = FieldParser.TryParseField(field, out var parsedField);
-
-            if (!IsParsed)
-            {
-                return BadRequest($"{parsedField} field!");
-            }
             var result = await _dataStore.GetSortedDataAsync(field);
 
             if (!result.Success)

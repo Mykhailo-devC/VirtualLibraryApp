@@ -1,6 +1,4 @@
-﻿global using VirtualLibrary.Models;
-
-namespace VirtualLibrary.Repository.Interface
+﻿namespace VirtualLibrary.Repository.Interface
 {
     public interface IRepository<T, K>
     {
@@ -9,6 +7,7 @@ namespace VirtualLibrary.Repository.Interface
         public Task<T> CreateAsync(K entity);
         public Task<T> UpdateAsync(int id, K entity);
         public Task<T> DeleteAsync(int id);
+        public bool CheckModelField(T entity, string field);
         public Task SaveAsync();
     }
 }

@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿global using VirtualLibrary.Models;
+using Microsoft.Extensions.Logging;
 using VirtualLibrary.Logic.Interface;
-using VirtualLibrary.Models;
 using VirtualLibrary.Repository.Interface;
 
 namespace VirtualLibrary.Logic.Implementation

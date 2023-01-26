@@ -144,6 +144,7 @@ namespace VirtualLibrary.Migrations
                     b.Property<DateTime>("PublishDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
+                        .HasColumnName("Date")
                         .HasDefaultValueSql("(getdate())");
 
                     b.Property<int>("PublisherId")
@@ -242,7 +243,8 @@ namespace VirtualLibrary.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("Publisher");
 
                     b.HasKey("Id")
                         .HasName("PK__Publishe__3214EC073E4D3E3A");
@@ -297,6 +299,7 @@ namespace VirtualLibrary.Migrations
                     b.HasOne("VirtualLibrary.Models.Publisher", "Publisher")
                         .WithMany("Items")
                         .HasForeignKey("PublisherId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK__Items__Publisher__276EDEB3");
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace VirtualLibrary.Models;
 
@@ -12,7 +13,7 @@ public partial class VirtualLibraryDbContext : DbContext
 
     public VirtualLibraryDbContext(DbContextOptions<VirtualLibraryDbContext> options)
         : base(options)
-    {
+    { 
     }
 
     public virtual DbSet<Article> Articles { get; set; }
@@ -91,11 +92,12 @@ public partial class VirtualLibraryDbContext : DbContext
 
             entity.Property(e => e.PublishDate)
                 .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
+                .HasColumnType("datetime")
+                .HasColumnName("Date");
 
             entity.HasOne(d => d.Publisher).WithMany(p => p.Items)
                 .HasForeignKey(d => d.PublisherId)
-                .OnDelete(DeleteBehavior.ClientSetNull) //delete.cascade
+                .OnDelete(DeleteBehavior.Cascade) //delete.cascade
                 .HasConstraintName("FK__Items__Publisher__276EDEB3");
         });
 
@@ -143,7 +145,7 @@ public partial class VirtualLibraryDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__Publishe__3214EC073E4D3E3A");
 
-            entity.Property(e => e.Name).HasMaxLength(50);
+            entity.Property(e => e.Name).HasMaxLength(50).HasColumnName("Publisher");
         });
 
         OnModelCreatingPartial(modelBuilder);

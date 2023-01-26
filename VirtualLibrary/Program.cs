@@ -19,7 +19,7 @@ class Program
                                 .WriteTo.Console());
         builder.Services.AddDbContext<VirtualLibraryDbContext>(opt =>
         {
-            opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+            opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("VirtualLibrary"));
         });
         builder.Services.AddControllers().AddJsonOptions(opt =>
                                            opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
@@ -50,14 +50,14 @@ class Program
 
     private static void AddUserServices(WebApplicationBuilder builder)
     {
-        builder.Services.AddSingleton<IRepository<Book, BookDTO>, BookRepository>();
-        builder.Services.AddSingleton<IRepository<Article, ArticleDTO>, ArticleRepository>();
-        builder.Services.AddSingleton<IRepository<Magazine, MagazineDTO>, MagazineRepository>();
-        builder.Services.AddSingleton<IRepository<Publisher, PublisherDTO>, PublisherRepository>();
+        builder.Services.AddScoped<IRepository<BookCopy, BookDTO>, BookRepository>();
+        builder.Services.AddScoped<IRepository<ArticleCopy, ArticleDTO>, ArticleRepository>();
+        builder.Services.AddScoped<IRepository<MagazineCopy, MagazineDTO>, MagazineRepository>();
+        builder.Services.AddScoped<IRepository<Publisher, PublisherDTO>, PublisherRepository>();
 
-        builder.Services.AddSingleton<IModelLogic<Book, BookDTO>, BookLogic>();
-        builder.Services.AddSingleton<IModelLogic<Article, ArticleDTO>, ArticleLogic>();
-        builder.Services.AddSingleton<IModelLogic<Magazine, MagazineDTO>, MagazineLogic>();
-        builder.Services.AddSingleton<IModelLogic<Publisher, PublisherDTO>, PublisherLogic>();
+        builder.Services.AddScoped<IModelLogic<BookCopy, BookDTO>, BookLogic>();
+        builder.Services.AddScoped<IModelLogic<ArticleCopy, ArticleDTO>, ArticleLogic>();
+        builder.Services.AddScoped<IModelLogic<MagazineCopy, MagazineDTO>, MagazineLogic>();
+        builder.Services.AddScoped<IModelLogic<Publisher, PublisherDTO>, PublisherLogic>();
     }
 }

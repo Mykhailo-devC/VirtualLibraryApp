@@ -4,11 +4,17 @@ using VirtualLibrary.Repository.Interface;
 
 namespace VirtualLibrary.Logic.Implementation
 {
-    public class BookLogic : ModelLogicBase<Book, BookDTO>
+    public class BookLogic : ModelLogicBase<BookCopy, BookDTO>
     {
-        public BookLogic(IRepository<Book, BookDTO> repository, ILogger<ModelLogicBase<Book, BookDTO>> logger) : base(repository, logger)
+        public BookLogic(IRepository<BookCopy, BookDTO> repository, ILogger<ModelLogicBase<BookCopy, BookDTO>> logger) : base(repository, logger)
         {
         }
+
+        private const string ISBN = "ISBN";
+        private const string AUTHOR = "Author";
+        private const string NAME = "Name";
+        private const string DATE = "Date";
+        private const string PUBLISHER = "Publisher";
 
         public override async Task<ActionManagerResponse> GetDataAsync()
         {
@@ -16,7 +22,7 @@ namespace VirtualLibrary.Logic.Implementation
             {
                 var books = await _repository.GetAllAsync();
 
-                return new ActionManagerResponse<IEnumerable<Book>>
+                return new ActionManagerResponse<IEnumerable<BookCopy>>
                 {
                     Success = true,
                     Message = "Data was read successfully",
@@ -43,7 +49,17 @@ namespace VirtualLibrary.Logic.Implementation
             {
                 var book = await _repository.GetByIdAsync(id);
 
-                return new ActionManagerResponse<Book>
+                if (book == null)
+                {
+                    return new ActionManagerResponse
+                    {
+                        Success = false,
+                        Message = "Data read error",
+                        Errors = new List<string> { $"Incorrect id [Value = {id}]" }
+                    };
+                }
+
+                return new ActionManagerResponse<BookCopy>
                 {
                     Success = true,
                     Message = "Data was read successfully",
@@ -70,17 +86,41 @@ namespace VirtualLibrary.Logic.Implementation
             {
                 var books = await _repository.GetAllAsync();
 
-                return new ActionManagerResponse<IEnumerable<Book>>
+                if(!_repository.CheckModelField(books.FirstOrDefault(), modelField))
+                {
+                    return new ActionManagerResponse
+                    {
+                        Success = false,
+                        Message = "Data read error",
+                        Errors = new List<string> { $"Incorrect model field [Value = {modelField}]" }
+                    };
+                }
+
+                var orderedBooks = books.OrderBy(b =>
+                {
+                    switch (modelField)
+                    {
+                        case ISBN: return b.Isbn.ToString();
+                        case NAME: return b.Book.Name;
+                        case AUTHOR: return b.Book.Author;
+                        case DATE: return b.Item.PublishDate.ToString();
+                        case PUBLISHER: return b.Item.Publisher.Name;
+                        default: return b.CopyId.ToString();
+                    }
+                }).ToList();
+
+                return new ActionManagerResponse<IEnumerable<BookCopy>>
                 {
                     Success = true,
                     Message = "Data was read successfully",
-                    ActionResult = books
+                    ActionResult = orderedBooks
                 };
+
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
-                        "Failed read 'Book' data");
+                        "Failed read 'BookCopy' data");
 
                 return new ActionManagerResponse
                 {
@@ -104,7 +144,7 @@ namespace VirtualLibrary.Logic.Implementation
                 };
             }
 
-            return new ActionManagerResponse<Book>
+            return new ActionManagerResponse<BookCopy>
             {
                 Success = true,
                 Message = "Data was read successfully",
@@ -130,7 +170,7 @@ namespace VirtualLibrary.Logic.Implementation
                 };
             }
 
-            return new ActionManagerResponse<Book>
+            return new ActionManagerResponse<BookCopy>
             {
                 Success = true,
                 Message = "Data was read successfully",

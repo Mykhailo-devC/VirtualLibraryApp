@@ -9,5 +9,5 @@ public partial class Publisher
 
     public string Name { get; set; } = null!;
 
-    public virtual ICollection<Item> Items { get; } = new List<Item>();
+    public ICollection<Item> Items { get; } = new List<Item>();
 }

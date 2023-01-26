@@ -1,7 +1,4 @@
-﻿global using VirtualLibrary.Models;
-
-
-namespace VirtualLibrary.Logic.Interface
+﻿namespace VirtualLibrary.Logic.Interface
 {
     public interface IModelLogic<T, K> where T : class
     {

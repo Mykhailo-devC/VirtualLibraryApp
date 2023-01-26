@@ -13,7 +13,7 @@ public partial class BookCopy
 
     public int ItemId { get; set; }
 
-    public virtual Book Book { get; set; } = null!;
+    public Book Book { get; set; } = null!;
 
-    public virtual Item Item { get; set; } = null!;
+    public Item Item { get; set; } = null!;
 }

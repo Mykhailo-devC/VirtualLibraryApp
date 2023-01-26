@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VirtualLibrary.Logic.Interface;
-using VirtualLibrary.Utilites.Implementations.Filters.ModelFields;
 namespace VirtualLibrary.Controllers
 {
     [Route("api/[controller]")]
@@ -8,9 +7,9 @@ namespace VirtualLibrary.Controllers
     public class BookController : ControllerBase
     {
         private readonly ILogger<BookController> _logger;
-        private readonly IModelLogic<Book, BookDTO> _dataStore;
+        private readonly IModelLogic<BookCopy, BookDTO> _dataStore;
 
-        public BookController(ILogger<BookController> logger, IModelLogic<Book, BookDTO> dataStore)
+        public BookController(ILogger<BookController> logger, IModelLogic<BookCopy, BookDTO> dataStore)
         {
             _logger = logger;
             _dataStore = dataStore;
@@ -19,12 +18,6 @@ namespace VirtualLibrary.Controllers
         [HttpGet("ordered")]
         public async Task<IActionResult> GetBooks(string field)
         {
-            var IsParsed = FieldParser.TryParseField(field, out var parsedField);
-
-            if (!IsParsed)
-            {
-                return BadRequest($"Incorrect field!");
-            }
             var result = await _dataStore.GetSortedDataAsync(field);
 
             if (!result.Success)

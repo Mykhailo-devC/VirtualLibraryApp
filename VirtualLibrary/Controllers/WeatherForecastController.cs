@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using VirtualLibrary.Utilites;
 
 namespace VirtualLibrary.Controllers
 {
@@ -22,12 +21,34 @@ namespace VirtualLibrary.Controllers
             _context = context;
         }
 
-        [HttpPost("GetPublisher")]
-        public async void Get(ArticleDTO articleDTO)
+        protected List<string> GetPropertyNames<P>(P entity)
         {
-            var dto = articleDTO;
-            return;
-            
+            var result = new List<string>();
+            var entityType = _context.Model.FindEntityType(typeof(P));
+            foreach (var item in entityType.GetProperties().Select(e => e.GetColumnName()).Where(s => !s.Contains("Id")).ToList())
+            {
+                result.Add(item);
+            }
+
+            return result;
+        }
+
+        [HttpGet]
+        public List<string> Get()
+        {
+            var book = _context.BookCopies
+                .Include(p => p.Book)
+                .Include(p => p.Item)
+                .ThenInclude(p => p.Publisher)
+                .FirstOrDefault();
+            var listOfNames = new List<string>();
+
+            listOfNames.AddRange(GetPropertyNames(book));
+            listOfNames.AddRange(GetPropertyNames(book.Book));
+            listOfNames.AddRange(GetPropertyNames(book.Item));
+            listOfNames.AddRange(GetPropertyNames(book.Item.Publisher));
+
+            return listOfNames;
         }
     }
 }

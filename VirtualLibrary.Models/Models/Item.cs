@@ -8,11 +8,11 @@ public partial class Item
 
     public int PublisherId { get; set; }
 
-    public virtual ArticleCopy ArticleCopy { get; set; }
+    public ArticleCopy ArticleCopy { get; set; }
 
-    public virtual BookCopy BookCopy { get; set; }
+    public BookCopy BookCopy { get; set; }
 
-    public virtual MagazineCopy MagazineCopy { get; set; }
+    public MagazineCopy MagazineCopy { get; set; }
 
-    public virtual Publisher Publisher { get; set; } = null!;
+    public Publisher Publisher { get; set; } = null!;
 }

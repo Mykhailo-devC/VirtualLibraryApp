@@ -1,63 +1,67 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
-using VirtualLibrary.Models;
 
 namespace VirtualLibrary.Repository.Implementation
 {
-    public class MagazineRepository : RepositoryBase<Magazine, MagazineDTO>
+    public class MagazineRepository : RepositoryBase<MagazineCopy, MagazineDTO>
     {
-        public MagazineRepository(VirtualLibraryDbContext context, ILogger<RepositoryBase<Magazine, MagazineDTO>> logger) : base(context, logger)
+        public MagazineRepository(VirtualLibraryDbContext context, ILogger<RepositoryBase<MagazineCopy, MagazineDTO>> logger) : base(context, logger)
         {
         }
 
-        public override async Task<IEnumerable<Magazine>> GetAllAsync()
+        public override async Task<IEnumerable<MagazineCopy>> GetAllAsync()
         {
-            var magazines = await _context.Magazines
-                    .Include(a => a.MagazineCopies)
-                    .ThenInclude(a => a.Item)
-                    .ThenInclude(a => a.Publisher)
+            var magazines = await _context.MagazineCopies
+                    .Include(a => a.Magazine)
+                    .Include(a => a.Item)
+                        .ThenInclude(a => a.Publisher)
                     .ToListAsync();
 
+            magazines.ForEach(e =>
+            {
+                e.Magazine.MagazineCopies.Clear();
+                e.Item.Publisher.Items.Clear();
+            });
+
             _logger.LogInformation($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
-                    "'Magazine' data was read successfully");
+                    "'MagazineCopy' data was read successfully");
 
             return magazines;
         }
 
-        public override async Task<Magazine> GetByIdAsync(int id)
+        public override async Task<MagazineCopy> GetByIdAsync(int id)
         {
             try
             {
-                var magazine = await _context.Magazines
-                    .Include(a => a.MagazineArticles)
-                    .ThenInclude(a => a.Article)
-                    .Include(a => a.MagazineCopies)
-                    .ThenInclude(a => a.Item)
-                    .ThenInclude(a => a.Publisher)
-                    .FirstOrDefaultAsync(a => a.Id == id);
+                var magazine = await _context.MagazineCopies
+                    .Include(a => a.Magazine)
+                        .ThenInclude(a => a.MagazineArticles)
+                    .Include(a => a.Item)
+                        .ThenInclude(a => a.Publisher)
+                    .FirstOrDefaultAsync(a => a.CopyId == id);
 
                 if (magazine == null)
                 {
                     _logger.LogWarning($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
-                        $"'Magazines' data with id {id} was't found");
+                        $"'MagazineCopy' data with id {id} was't found");
                     return null;
                 }
 
                 _logger.LogInformation($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
-                        "'Magazines' data read successfully");
+                        "'MagazinesCopy' data read successfully");
 
                 return magazine;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
-                        $"Failed read 'Magazine' data [Id = {id}]");
+                        $"Failed read 'MagazineCopy' data [Id = {id}]");
                 return null;
             }
         }
 
-        public override async Task<Magazine> CreateAsync(MagazineDTO magazineDto)
+        public override async Task<MagazineCopy> CreateAsync(MagazineDTO magazineDto)
         {
             using (var transaction = _context.Database.BeginTransaction())
             {
@@ -119,14 +123,14 @@ namespace VirtualLibrary.Repository.Implementation
                     await transaction.CommitAsync();
 
                     _logger.LogInformation($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
-                        "'Magazine' data created successfully");
+                        "'MagazineCopy' data created successfully");
 
-                    return magazine;
+                    return magazineCopy;
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
-                            "Failed adding 'Magazine' data");
+                            "Failed adding 'MagazineCopy' data");
 
                     transaction.Rollback();
 
@@ -135,12 +139,12 @@ namespace VirtualLibrary.Repository.Implementation
             }
         }
 
-        public override async Task<Magazine> UpdateAsync(int id, MagazineDTO entityDto)
+        public override async Task<MagazineCopy> UpdateAsync(int id, MagazineDTO entityDto)
         {
             throw new NotImplementedException();
         }
 
-        public override async Task<Magazine> DeleteAsync(int id)
+        public override async Task<MagazineCopy> DeleteAsync(int id)
         {
             using (var transaction = _context.Database.BeginTransaction())
             {
@@ -181,19 +185,35 @@ namespace VirtualLibrary.Repository.Implementation
 
                     await transaction.CommitAsync();
                     _logger.LogInformation($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
-                            $"'ArticleCopy' data with id {magazineCopy.CopyId} was removed successfully");
+                            $"'MagazineCopy' data with id {magazineCopy.CopyId} was removed successfully");
 
-                    return magazine;
+                    return magazineCopy;
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
-                            $"Failed deleting 'Magazine' data [Id = {id}]");
+                            $"Failed deleting 'MagazineCopy' data [Id = {id}]");
 
                     transaction.Rollback();
                     return null;
                 }
             }
+        }
+
+        public override bool CheckModelField(MagazineCopy entity, string field)
+        {
+            var listOfNames = new List<string>();
+
+            listOfNames.AddRange(GetPropertyNames(entity));
+            listOfNames.AddRange(GetPropertyNames(entity.Magazine));
+            listOfNames.AddRange(GetPropertyNames(entity.Item));
+            listOfNames.AddRange(GetPropertyNames(entity.Item.Publisher));
+
+            if (listOfNames.Contains(field))
+            {
+                return true;
+            }
+            else return false;
         }
     }
 }

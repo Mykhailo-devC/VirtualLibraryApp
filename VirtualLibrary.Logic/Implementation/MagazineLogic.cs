@@ -4,11 +4,16 @@ using VirtualLibrary.Repository.Interface;
 
 namespace VirtualLibrary.Logic.Implementation
 {
-    public class MagazineLogic : ModelLogicBase<Magazine, MagazineDTO>
+    public class MagazineLogic : ModelLogicBase<MagazineCopy, MagazineDTO>
     {
-        public MagazineLogic(IRepository<Magazine, MagazineDTO> repository, ILogger<ModelLogicBase<Magazine, MagazineDTO>> logger) : base(repository, logger)
+        public MagazineLogic(IRepository<MagazineCopy, MagazineDTO> repository, ILogger<ModelLogicBase<MagazineCopy, MagazineDTO>> logger) : base(repository, logger)
         {
         }
+
+        private const string ISSUE_NUMBER = "IssureNumber";
+        private const string NAME = "Name";
+        private const string DATE = "Date";
+        private const string PUBLISHER = "Publisher";
 
         public override async Task<ActionManagerResponse> GetDataAsync()
         {
@@ -16,7 +21,7 @@ namespace VirtualLibrary.Logic.Implementation
             {
                 var magazines = await _repository.GetAllAsync();
 
-                return new ActionManagerResponse<IEnumerable<Magazine>>
+                return new ActionManagerResponse<IEnumerable<MagazineCopy>>
                 {
                     Success = true,
                     Message = "Data was read successfully",
@@ -43,7 +48,7 @@ namespace VirtualLibrary.Logic.Implementation
             {
                 var magazine = await _repository.GetByIdAsync(id);
 
-                return new ActionManagerResponse<Magazine>
+                return new ActionManagerResponse<MagazineCopy>
                 {
                     Success = true,
                     Message = "Data was read successfully",
@@ -70,7 +75,29 @@ namespace VirtualLibrary.Logic.Implementation
             {
                 var magazines = await _repository.GetAllAsync();
 
-                return new ActionManagerResponse<IEnumerable<Magazine>>
+                if (!_repository.CheckModelField(magazines.FirstOrDefault(), modelField))
+                {
+                    return new ActionManagerResponse
+                    {
+                        Success = false,
+                        Message = "Data read error",
+                        Errors = new List<string> { $"Incorrect model field [Value = {modelField}]" }
+                    };
+                }
+
+                var orderedMagazines = magazines.OrderBy(b =>
+                {
+                    switch (modelField)
+                    {
+                        case ISSUE_NUMBER: return b.IssureNumber.ToString();
+                        case NAME: return b.Magazine.Name;
+                        case DATE: return b.Item.PublishDate.ToString();
+                        case PUBLISHER: return b.Item.Publisher.Name;
+                        default: return b.CopyId.ToString();
+                    }
+                }).ToList();
+
+                return new ActionManagerResponse<IEnumerable<MagazineCopy>>
                 {
                     Success = true,
                     Message = "Data was read successfully",
@@ -104,7 +131,7 @@ namespace VirtualLibrary.Logic.Implementation
                 };
             }
 
-            return new ActionManagerResponse<Magazine>
+            return new ActionManagerResponse<MagazineCopy>
             {
                 Success = true,
                 Message = "Data was read successfully",
@@ -125,7 +152,7 @@ namespace VirtualLibrary.Logic.Implementation
                 };
             }
 
-            return new ActionManagerResponse<Magazine>
+            return new ActionManagerResponse<MagazineCopy>
             {
                 Success = true,
                 Message = "Data was read successfully",

@@ -4,11 +4,17 @@ using VirtualLibrary.Repository.Interface;
 
 namespace VirtualLibrary.Logic.Implementation
 {
-    public class ArticleLogic : ModelLogicBase<Article, ArticleDTO>
+    public class ArticleLogic : ModelLogicBase<ArticleCopy, ArticleDTO>
     {
-        public ArticleLogic(IRepository<Article, ArticleDTO> repository, ILogger<ModelLogicBase<Article, ArticleDTO>> logger) : base(repository, logger)
+        public ArticleLogic(IRepository<ArticleCopy, ArticleDTO> repository, ILogger<ModelLogicBase<ArticleCopy, ArticleDTO>> logger) : base(repository, logger)
         {
         }
+
+        private const string VERSION = "Version";
+        private const string AUTHOR = "Author";
+        private const string NAME = "Name";
+        private const string DATE = "Date";
+        private const string PUBLISHER = "Publisher";
 
         public override async Task<ActionManagerResponse> GetDataAsync()
         {
@@ -16,7 +22,7 @@ namespace VirtualLibrary.Logic.Implementation
             {
                 var articles = await _repository.GetAllAsync();
 
-                return new ActionManagerResponse<IEnumerable<Article>>
+                return new ActionManagerResponse<IEnumerable<ArticleCopy>>
                 {
                     Success = true,
                     Message = "Data was read successfully",
@@ -43,7 +49,7 @@ namespace VirtualLibrary.Logic.Implementation
             {
                 var article = await _repository.GetByIdAsync(id);
 
-                return new ActionManagerResponse<Article>
+                return new ActionManagerResponse<ArticleCopy>
                 {
                     Success = true,
                     Message = "Data was read successfully",
@@ -70,11 +76,34 @@ namespace VirtualLibrary.Logic.Implementation
             {
                 var articles = await _repository.GetAllAsync();
 
-                return new ActionManagerResponse<IEnumerable<Article>>
+                if (!_repository.CheckModelField(articles.FirstOrDefault(), modelField))
+                {
+                    return new ActionManagerResponse
+                    {
+                        Success = false,
+                        Message = "Data read error",
+                        Errors = new List<string> { $"Incorrect model field [Value = {modelField}]" }
+                    };
+                }
+
+                var orderedArticles = articles.OrderBy(b =>
+                {
+                    switch (modelField)
+                    {
+                        case VERSION: return b.Version.ToString();
+                        case NAME: return b.Article.Name;
+                        case AUTHOR: return b.Article.Author;
+                        case DATE: return b.Item.PublishDate.ToString();
+                        case PUBLISHER: return b.Item.Publisher.Name;
+                        default: return b.CopyId.ToString();
+                    }
+                }).ToList();
+
+                return new ActionManagerResponse<IEnumerable<ArticleCopy>>
                 {
                     Success = true,
                     Message = "Data was read successfully",
-                    ActionResult = articles
+                    ActionResult = orderedArticles
                 };
             }
             catch (Exception ex)
@@ -103,7 +132,7 @@ namespace VirtualLibrary.Logic.Implementation
                 };
             }
 
-            return new ActionManagerResponse<Article>
+            return new ActionManagerResponse<ArticleCopy>
             {
                 Success = true,
                 Message = "Data was read successfully",
@@ -124,7 +153,7 @@ namespace VirtualLibrary.Logic.Implementation
                 };
             }
 
-            return new ActionManagerResponse<Article>
+            return new ActionManagerResponse<ArticleCopy>
             {
                 Success = true,
                 Message = "Data was read successfully",

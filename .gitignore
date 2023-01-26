@@ -6,3 +6,6 @@ VirtualLibrary/Migrations/
 VirtualLibrary.Logic/obj/
 VirtualLibrary.Models/obj/
 VirtualLibrary.Repository/obj/
+VirtualLibrary.Logic/bin/
+VirtualLibrary.Models/bin/
+VirtualLibrary.Repository/bin/

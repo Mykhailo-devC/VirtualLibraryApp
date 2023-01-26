@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Utilites\Interfaces\**" />
+    <Content Remove="Utilites\Interfaces\**" />
+    <EmbeddedResource Remove="Utilites\Interfaces\**" />
+    <None Remove="Utilites\Interfaces\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.2" />
@@ -17,6 +24,16 @@
     <PackageReference Include="Serilog.AspNetCore" Version="6.1.1-dev-00293" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.1.1-dev-00901" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VirtualLibrary.Logic\VirtualLibrary.Logic.csproj" />
+    <ProjectReference Include="..\VirtualLibrary.Models\VirtualLibrary.Models.csproj" />
+    <ProjectReference Include="..\VirtualLibrary.Repository\VirtualLibrary.Repository.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Utilites\Implementations\" />
   </ItemGroup>
 
 </Project>

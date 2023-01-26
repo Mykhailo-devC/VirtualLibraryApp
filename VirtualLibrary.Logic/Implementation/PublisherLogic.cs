@@ -10,6 +10,7 @@ namespace VirtualLibrary.Logic.Implementation
         {
         }
 
+        private const string NAME = "Publisher";
         public override async Task<ActionManagerResponse> GetDataAsync()
         {
             try
@@ -70,11 +71,30 @@ namespace VirtualLibrary.Logic.Implementation
             {
                 var publishers = await _repository.GetAllAsync();
 
+                if(!_repository.CheckModelField(publishers.FirstOrDefault(), modelField))
+                {
+                    return new ActionManagerResponse
+                    {
+                        Success = false,
+                        Message = "Data read error",
+                        Errors = new List<string> { $"Incorrect model field [Value = {modelField}]" }
+                    };
+                }
+
+                var orderedPublishers = publishers.OrderBy(p =>
+                {
+                    switch (modelField)
+                    {
+                        case NAME: return p.Name;
+                        default: return p.Id.ToString();
+                    }
+                }).ToList();
+
                 return new ActionManagerResponse<IEnumerable<Publisher>>
                 {
                     Success = true,
                     Message = "Data was read successfully",
-                    ActionResult = publishers
+                    ActionResult = orderedPublishers
                 };
             }
             catch (Exception ex)

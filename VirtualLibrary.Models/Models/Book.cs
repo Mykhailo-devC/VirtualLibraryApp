@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace VirtualLibrary.Models;
+﻿namespace VirtualLibrary.Models;
 
 public partial class Book
 {
@@ -11,5 +8,5 @@ public partial class Book
 
     public string Author { get; set; } = null!;
 
-    public virtual ICollection<BookCopy> BookCopies { get; } = new List<BookCopy>();
+    public ICollection<BookCopy> BookCopies { get; } = new List<BookCopy>();
 }

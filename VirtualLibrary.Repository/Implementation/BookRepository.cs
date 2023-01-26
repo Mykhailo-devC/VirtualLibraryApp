@@ -1,61 +1,67 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
-using VirtualLibrary.Models;
 
 namespace VirtualLibrary.Repository.Implementation
 {
-    public class BookRepository : RepositoryBase<Book, BookDTO>
+    public class BookRepository : RepositoryBase<BookCopy, BookDTO>
     {
-        public BookRepository(VirtualLibraryDbContext context, ILogger<RepositoryBase<Book, BookDTO>> logger) : base(context, logger)
+        public BookRepository(VirtualLibraryDbContext context, ILogger<RepositoryBase<BookCopy, BookDTO>> logger) : base(context, logger)
         {
         }
 
-        public override async Task<IEnumerable<Book>> GetAllAsync()
+        public override async Task<IEnumerable<BookCopy>> GetAllAsync()
         {
-            var books = await _context.Books
-                    .Include(e => e.BookCopies)
-                    .ThenInclude(e => e.Item)
-                    .ThenInclude(e => e.Publisher)
-                    .ToListAsync();
+            var books = await _context.BookCopies
+                                .Include(e => e.Book)
+                                .Include(e => e.Item)
+                                .ThenInclude(e => e.Publisher)
+                                .ToListAsync();
+
+            books.ForEach(e =>
+             {
+                 e.Book.BookCopies.Clear();
+                 e.Item.Publisher.Items.Clear();
+             });
+
 
             _logger.LogInformation($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
-                        "'Book' data was read successfully");
-
+                        "'BookCopy' data was read successfully");
+            
             return books;
         }
-        public override async Task<Book> GetByIdAsync(int id)
+
+        public override async Task<BookCopy> GetByIdAsync(int id)
         {
-            //Tip: it would use to return all copies of a book
             try
             {
-                var book = await _context.Books
-                    .Include(b => b.BookCopies)
-                    .ThenInclude(b => b.Item)
-                    .ThenInclude(b => b.Publisher)
-                    .FirstOrDefaultAsync(b => b.Id == id);
+                var book = await _context.BookCopies
+                    .Include(e => e.Book)
+                    .Include(e => e.Item)
+                    .ThenInclude(e => e.Publisher)
+                    .FirstOrDefaultAsync(b => b.CopyId == id);
 
                 if (book == null)
                 {
                     _logger.LogWarning($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
-                        $"'Book' data with id {id} was't found");
+                        $"'BookCopy' data with id {id} was't found");
                     return null;
                 }
 
                 _logger.LogInformation($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
-                        $"'Book' data read successfully");
+                        $"'BookCopy' data read successfully");
 
                 return book;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
-                        $"Failed read 'Book' data [Id = {id}]");
+                        $"Failed read 'BookCopy' data [Id = {id}]");
                 return null;
             }
         }
 
-        public override async Task<Book> CreateAsync(BookDTO bookDto)
+        public override async Task<BookCopy> CreateAsync(BookDTO bookDto)
         {
             using (var transaction = _context.Database.BeginTransaction())
             {
@@ -106,21 +112,21 @@ namespace VirtualLibrary.Repository.Implementation
                     await transaction.CommitAsync();
 
                     _logger.LogInformation($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
-                        "'Book' data created successfully");
+                        "'BookCopy' data created successfully");
 
-                    return book;
+                    return bookCopy;
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
-                            "Failed adding 'Books' data");
+                            "Failed adding 'BooksCopy' data");
 
                     transaction.Rollback();
                     return null;
                 }
             }
         }
-        public override async Task<Book> UpdateAsync(int id, BookDTO bookDto)
+        public override async Task<BookCopy> UpdateAsync(int id, BookDTO bookDto)
         {
             // Doesn't work as expected
             throw new NotImplementedException();
@@ -213,7 +219,7 @@ namespace VirtualLibrary.Repository.Implementation
                 }
             }*/
         }
-        public override async Task<Book> DeleteAsync(int id)
+        public override async Task<BookCopy> DeleteAsync(int id)
         {
             using (var transaction = _context.Database.BeginTransaction())
             {
@@ -227,7 +233,7 @@ namespace VirtualLibrary.Repository.Implementation
                     if (book == null)
                     {
                         _logger.LogWarning($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
-                            $"'Book' data with id {id} was't found");
+                            $"'BookCopy' data with id {id} was't found");
                         return null;
                     }
 
@@ -237,6 +243,7 @@ namespace VirtualLibrary.Repository.Implementation
                     {
                         throw new Exception($"Book with id {book.Id} has no BookCopies");
                     }
+
                     _context.Items.Remove(bookCopy.Item);
                     _context.BookCopies.Remove(bookCopy);
                     await SaveAsync();
@@ -251,17 +258,33 @@ namespace VirtualLibrary.Repository.Implementation
                     _logger.LogInformation($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
                             $"'BookCopy' data with id {bookCopy.CopyId} was removed successfully");
 
-                    return book;
+                    return bookCopy;
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
-                            $"Failed deleting 'Book' data [Id = {id}]");
+                            $"Failed deleting 'BookCopy' data [Id = {id}]");
 
                     transaction.Rollback();
                     return null;
                 }
             }
+        }
+
+        public override bool CheckModelField(BookCopy entity, string field)
+        {
+            var listOfNames = new List<string>();
+
+            listOfNames.AddRange(GetPropertyNames(entity));
+            listOfNames.AddRange(GetPropertyNames(entity.Book));
+            listOfNames.AddRange(GetPropertyNames(entity.Item));
+            listOfNames.AddRange(GetPropertyNames(entity.Item.Publisher));
+
+            if (listOfNames.Contains(field))
+            {
+                return true;
+            }
+            else return false;
         }
     }
 }

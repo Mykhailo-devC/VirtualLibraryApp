@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VirtualLibrary.Logic.Interface;
-using VirtualLibrary.Utilites.Implementations.Filters.ModelFields;
 namespace VirtualLibrary.Controllers
 {
     [Route("api/[controller]")]
@@ -8,9 +7,9 @@ namespace VirtualLibrary.Controllers
     public class ArticleController : ControllerBase
     {
         private readonly ILogger<ArticleController> _logger;
-        private readonly IModelLogic<Article, ArticleDTO> _dataStore;
+        private readonly IModelLogic<ArticleCopy, ArticleDTO> _dataStore;
 
-        public ArticleController(ILogger<ArticleController> logger, IModelLogic<Article, ArticleDTO> dataStore)
+        public ArticleController(ILogger<ArticleController> logger, IModelLogic<ArticleCopy, ArticleDTO> dataStore)
         {
             _logger = logger;
             _dataStore = dataStore;
@@ -19,12 +18,6 @@ namespace VirtualLibrary.Controllers
         [HttpGet("ordered")]
         public async Task<IActionResult> GetArticles([FromHeader] string field)
         {
-            var IsParsed = FieldParser.TryParseField(field, out var parsedField);
-
-            if (!IsParsed)
-            {
-                return BadRequest($"{parsedField} field!");
-            }
             var result = await _dataStore.GetSortedDataAsync(field);
 
             if (!result.Success)
