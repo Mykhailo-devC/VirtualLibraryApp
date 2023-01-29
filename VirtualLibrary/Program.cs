@@ -7,6 +7,8 @@ using VirtualLibrary.Repository.Interface;
 using VirtualLibrary.Repository.Implementation;
 using VirtualLibrary.Logic.Implementation;
 using VirtualLibrary.Logic.Interface;
+using Microsoft.Extensions.DependencyInjection;
+using VirtualLibrary.Middleware;
 
 class Program
 {
@@ -19,7 +21,8 @@ class Program
                                 .WriteTo.Console());
         builder.Services.AddDbContext<VirtualLibraryDbContext>(opt =>
         {
-            opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("VirtualLibrary"));
+            opt.UseSqlServer(builder.Configuration
+                .GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("VirtualLibrary"));
         });
         builder.Services.AddControllers().AddJsonOptions(opt =>
                                            opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
@@ -44,6 +47,8 @@ class Program
         app.UseAuthorization();
 
         app.MapControllers();
+
+        app.UseMiddleware<IdentifierValidatorMiddleware>();
 
         app.Run();
     }

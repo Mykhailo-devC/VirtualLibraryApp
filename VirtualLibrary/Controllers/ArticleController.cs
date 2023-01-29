@@ -15,8 +15,8 @@ namespace VirtualLibrary.Controllers
             _dataStore = dataStore;
         }
 
-        [HttpGet("ordered")]
-        public async Task<IActionResult> GetArticles([FromHeader] string field)
+        [HttpGet("ordered/{field}")]
+        public async Task<IActionResult> GetArticles(string field)
         {
             var result = await _dataStore.GetSortedDataAsync(field);
 
@@ -35,27 +35,20 @@ namespace VirtualLibrary.Controllers
 
             if (!result.Success)
             {
-                return BadRequest(result);
+                return NotFound(result);
             }
 
             return Ok(result);
         }
 
         [HttpGet("id")]
-        public async Task<IActionResult> GetArticleByID([FromQuery] string id)
+        public async Task<IActionResult> GetArticleByID(string id)
         {
-            var isInteger = int.TryParse(id, out int parsedId);
-
-            if (string.IsNullOrWhiteSpace(id) && !isInteger)
-            {
-                return BadRequest("Incorect Id");
-            }
-
-            var result = await _dataStore.GetDatabyId(parsedId);
+            var result = await _dataStore.GetDatabyId(int.Parse(id));
 
             if (!result.Success)
             {
-                return BadRequest(result);
+                return NotFound(result);
             }
 
             return Ok(result);
@@ -106,20 +99,13 @@ namespace VirtualLibrary.Controllers
         }*/
 
         [HttpDelete("id")]
-        public async Task<IActionResult> DeleteArticle([FromQuery] string id)
+        public async Task<IActionResult> DeleteArticle(string id)
         {
-            var isInteger = int.TryParse(id, out int parsedId);
-
-            if (string.IsNullOrWhiteSpace(id) && !isInteger)
-            {
-                return BadRequest("Incorect Id");
-            }
-
-            var result = await _dataStore.DeleteDataAsync(parsedId);
+            var result = await _dataStore.DeleteDataAsync(int.Parse(id));
 
             if (!result.Success)
             {
-                return BadRequest(result);
+                return NotFound(result);
             }
 
             return Ok(result);

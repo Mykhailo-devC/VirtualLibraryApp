@@ -7,7 +7,7 @@
         public Task<T> CreateAsync(K entity);
         public Task<T> UpdateAsync(int id, K entity);
         public Task<T> DeleteAsync(int id);
-        public bool CheckModelField(T entity, string field);
+        public bool CheckModelField(string field);
         public Task SaveAsync();
     }
 }

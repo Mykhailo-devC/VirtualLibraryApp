@@ -43,7 +43,7 @@ namespace VirtualLibrary.Migrations
                     b.HasKey("Id")
                         .HasName("PK__Articles__3214EC073CFF80C0");
 
-                    b.ToTable("Articles");
+                    b.ToTable("Articles", (string)null);
                 });
 
             modelBuilder.Entity("VirtualLibrary.Models.ArticleCopy", b =>
@@ -74,7 +74,7 @@ namespace VirtualLibrary.Migrations
                     b.HasIndex(new[] { "Version" }, "UQ__ArticleC__0F54013433DBD72A")
                         .IsUnique();
 
-                    b.ToTable("ArticleCopies");
+                    b.ToTable("ArticleCopies", (string)null);
                 });
 
             modelBuilder.Entity("VirtualLibrary.Models.Book", b =>
@@ -98,7 +98,7 @@ namespace VirtualLibrary.Migrations
                     b.HasKey("Id")
                         .HasName("PK__Books__3214EC07476BFDDD");
 
-                    b.ToTable("Books");
+                    b.ToTable("Books", (string)null);
                 });
 
             modelBuilder.Entity("VirtualLibrary.Models.BookCopy", b =>
@@ -130,7 +130,7 @@ namespace VirtualLibrary.Migrations
                     b.HasIndex(new[] { "Isbn" }, "UQ__BookCopi__447D36EAF37893F6")
                         .IsUnique();
 
-                    b.ToTable("BookCopies");
+                    b.ToTable("BookCopies", (string)null);
                 });
 
             modelBuilder.Entity("VirtualLibrary.Models.Item", b =>
@@ -155,7 +155,7 @@ namespace VirtualLibrary.Migrations
 
                     b.HasIndex("PublisherId");
 
-                    b.ToTable("Items");
+                    b.ToTable("Items", (string)null);
                 });
 
             modelBuilder.Entity("VirtualLibrary.Models.Magazine", b =>
@@ -174,7 +174,7 @@ namespace VirtualLibrary.Migrations
                     b.HasKey("Id")
                         .HasName("PK__Magazine__3214EC07B650E33C");
 
-                    b.ToTable("Magazines");
+                    b.ToTable("Magazines", (string)null);
                 });
 
             modelBuilder.Entity("VirtualLibrary.Models.MagazineArticle", b =>
@@ -229,7 +229,7 @@ namespace VirtualLibrary.Migrations
                     b.HasIndex(new[] { "IssureNumber" }, "UQ__Magazine__F1B3FFCC737B8277")
                         .IsUnique();
 
-                    b.ToTable("MagazineCopies");
+                    b.ToTable("MagazineCopies", (string)null);
                 });
 
             modelBuilder.Entity("VirtualLibrary.Models.Publisher", b =>
@@ -249,7 +249,7 @@ namespace VirtualLibrary.Migrations
                     b.HasKey("Id")
                         .HasName("PK__Publishe__3214EC073E4D3E3A");
 
-                    b.ToTable("Publishers");
+                    b.ToTable("Publishers", (string)null);
                 });
 
             modelBuilder.Entity("VirtualLibrary.Models.ArticleCopy", b =>

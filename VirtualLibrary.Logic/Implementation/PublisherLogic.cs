@@ -71,7 +71,7 @@ namespace VirtualLibrary.Logic.Implementation
             {
                 var publishers = await _repository.GetAllAsync();
 
-                if(!_repository.CheckModelField(publishers.FirstOrDefault(), modelField))
+                if(!_repository.CheckModelField(modelField))
                 {
                     return new ActionManagerResponse
                     {

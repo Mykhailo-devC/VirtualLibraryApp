@@ -12,22 +12,21 @@ namespace VirtualLibrary.Repository.Implementation
 
         public override async Task<IEnumerable<ArticleCopy>> GetAllAsync()
         {
-            var articles = await _context.ArticleCopies
+            var articles = _context.ArticleCopies
                     .Include(a => a.Article)
                     .Include(a => a.Item)
-                        .ThenInclude(a => a.Publisher)
-                    .ToListAsync();
+                        .ThenInclude(a => a.Publisher);
 
-            articles.ForEach(e =>
+            foreach(var article in articles)
             {
-                e.Article.ArticleCopies.Clear();
-                e.Item.Publisher.Items.Clear();
-            });
+                article.Article.ArticleCopies.Clear();
+                article.Item.Publisher.Items.Clear();
+            }
 
             _logger.LogInformation($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
                     "'ArticleCopy' data was read successfully");
 
-            return articles;
+            return await articles.ToListAsync();
         }
 
         public override async Task<ArticleCopy> GetByIdAsync(int id)
@@ -150,38 +149,24 @@ namespace VirtualLibrary.Repository.Implementation
             {
                 try
                 {
-                    var article = await _context.Articles
-                        .Include(a => a.MagazineArticles)
-                        .ThenInclude(a => a.Magazine)
-                        .Include(a => a.ArticleCopies)
-                        .ThenInclude(a => a.Item)
-                        .ThenInclude(a => a.Publisher)
-                        .FirstOrDefaultAsync(a => a.Id == id);
-
-                    if (article == null)
-                    {
-                        _logger.LogWarning($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
-                            $"'Article' data with id {id} was't found");
-                        return null;
-                    }
-
-                    var articleCopy = article.ArticleCopies.FirstOrDefault();
+                    var articleCopy = await _context.ArticleCopies
+                          .Include(a => a.Article)
+                          .Include(a => a.Item)
+                          .FirstOrDefaultAsync(a => a.CopyId == id);
 
                     if (articleCopy == null)
                     {
-                        throw new Exception($"Article with id {article.Id} has no copies");
+                        _logger.LogWarning($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
+                            $"'ArticleCopy' data with id {id} was't found");
+                        return null;
                     }
 
-                    
                     _context.Items.Remove(articleCopy.Item);
-                    _context.ArticleCopies.Remove(articleCopy);
                     await SaveAsync();
 
-                    if (!article.ArticleCopies.Any())
+                    if(!articleCopy.Article.ArticleCopies.Any())
                     {
-                        _context.MagazineArticles.RemoveRange(article.MagazineArticles);
-                        _context.Articles.Remove(article);
-                        
+                        _context.Articles.Remove(articleCopy.Article);
                         await SaveAsync();
                     }
 
@@ -203,14 +188,21 @@ namespace VirtualLibrary.Repository.Implementation
             }
         }
 
-        public override bool CheckModelField(ArticleCopy entity, string field)
+        public override bool CheckModelField(string field)
         {
+            if (string.IsNullOrWhiteSpace(field))
+            {
+                _logger.LogWarning($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
+                            $"Model field is not valid [Field = {field}]");
+                return false;
+            }
+
             var listOfNames = new List<string>();
 
-            listOfNames.AddRange(GetPropertyNames(entity));
-            listOfNames.AddRange(GetPropertyNames(entity.Article));
-            listOfNames.AddRange(GetPropertyNames(entity.Item));
-            listOfNames.AddRange(GetPropertyNames(entity.Item.Publisher));
+            listOfNames.AddRange(GetPropertyNames<ArticleCopy>());
+            listOfNames.AddRange(GetPropertyNames<Article>());
+            listOfNames.AddRange(GetPropertyNames<Item>());
+            listOfNames.AddRange(GetPropertyNames<Publisher>());
 
             if (listOfNames.Contains(field))
             {

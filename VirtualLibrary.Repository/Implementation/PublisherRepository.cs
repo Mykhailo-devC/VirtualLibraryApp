@@ -108,41 +108,51 @@ namespace VirtualLibrary.Repository.Implementation
         }
         public override async Task<Publisher> DeleteAsync(int id)
         {
-            //Tip: you can`' delete a publisher is he has published some items. 'Item' table can't exist without publisher TODO: enable Item`s nullable Publisher field
-            try
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                var publisher = await _context.Publishers.FindAsync(id);
-
-                if (publisher == null)
+                try
                 {
-                    _logger.LogWarning($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
-                        $"'Publisher' data with id {id} was't found");
+                    var publisher = await _context.Publishers.FindAsync(id);
 
+                    if (publisher == null)
+                    {
+                        _logger.LogWarning($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
+                            $"'Publisher' data with id {id} was't found");
+
+                        return null;
+                    }
+
+                    _context.Publishers.Remove(publisher);
+                    await SaveAsync();
+
+                    transaction.Commit();
+                    _logger.LogInformation($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
+                            $"'Publisher' data with id {id} was removed successfully");
+
+                    return publisher;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
+                            $"Failed deleting 'Publisher' data [Id = {id}]");
+                    transaction.Rollback();
                     return null;
                 }
-
-                _context.Publishers.Remove(publisher);
-                await SaveAsync();
-
-                _logger.LogInformation($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
-                        $"'Publisher' data with id {id} was removed successfully");
-
-                return publisher;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
-                        $"Failed deleting 'Publisher' data [Id = {id}]");
-
-                return null;
             }
         }
 
-        public override bool CheckModelField(Publisher entity, string field)
+        public override bool CheckModelField(string field)
         {
+            if (string.IsNullOrWhiteSpace(field))
+            {
+                _logger.LogWarning($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
+                            $"Model field is not valid [Field = {field}]");
+                return false;
+            }
+
             var listOfNames = new List<string>();
 
-            listOfNames.AddRange(GetPropertyNames(entity));
+            listOfNames.AddRange(GetPropertyNames<Publisher>());
 
             if (listOfNames.Contains(field))
             {

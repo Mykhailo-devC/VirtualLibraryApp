@@ -16,8 +16,8 @@ namespace VirtualLibrary.Controllers
             _dataStore = dataStore;
         }
 
-        [HttpGet("ordered")]
-        public async Task<IActionResult> GetMagazines([FromHeader] string field)
+        [HttpGet("ordered/{field}")]
+        public async Task<IActionResult> GetMagazines(string field)
         {
             var result = await _dataStore.GetSortedDataAsync(field);
 
@@ -43,20 +43,13 @@ namespace VirtualLibrary.Controllers
         }
 
         [HttpGet("id")]
-        public async Task<IActionResult> GetMagazineByID([FromQuery] string id)
+        public async Task<IActionResult> GetMagazineByID(string id)
         {
-            var isInteger = int.TryParse(id, out int parsedId);
-
-            if (string.IsNullOrWhiteSpace(id) && !isInteger)
-            {
-                return BadRequest("Incorect Id");
-            }
-
-            var result = await _dataStore.GetDatabyId(parsedId);
+            var result = await _dataStore.GetDatabyId(int.Parse(id));
 
             if (!result.Success)
             {
-                return BadRequest(result);
+                return NotFound(result);
             }
 
             return Ok(result);
@@ -107,20 +100,13 @@ namespace VirtualLibrary.Controllers
         }*/
 
         [HttpDelete("id")]
-        public async Task<IActionResult> DeleteMagazine([FromQuery] string id)
+        public async Task<IActionResult> DeleteMagazine(string id)
         {
-            var isInteger = int.TryParse(id, out int parsedId);
-
-            if (string.IsNullOrWhiteSpace(id) && !isInteger)
-            {
-                return BadRequest("Incorect Id");
-            }
-
-            var result = await _dataStore.DeleteDataAsync(parsedId);
+            var result = await _dataStore.DeleteDataAsync(int.Parse(id));
 
             if (!result.Success)
             {
-                return BadRequest(result);
+                return NotFound(result);
             }
 
             return Ok(result);

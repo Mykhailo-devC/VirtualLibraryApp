@@ -26,18 +26,16 @@ namespace VirtualLibrary.Repository.Implementation
             await _context.SaveChangesAsync();
         }
 
-        public abstract bool CheckModelField(T entity, string field);
+        public abstract bool CheckModelField(string field);
 
-        protected List<string> GetPropertyNames<P>(P entity)
+        protected List<string> GetPropertyNames<P>()
         {
-            var result = new List<string>();
             var entityType = _context.Model.FindEntityType(typeof(P));
-            foreach (var item in entityType.GetProperties().Select(e => e.GetColumnName())/*.Where(s => !s.Contains("Id"))*/.ToList())
-            {
-                result.Add(item);
-            }
 
-            return result;
+            return entityType.GetProperties().
+                Select(e => e.GetColumnName())
+                .Where(s => !s.Contains("Id"))
+                .ToList();
         }
     }
 }

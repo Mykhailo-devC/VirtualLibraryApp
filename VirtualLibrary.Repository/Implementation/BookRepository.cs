@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
+using VirtualLibrary.Models;
 
 namespace VirtualLibrary.Repository.Implementation
 {
@@ -12,23 +13,22 @@ namespace VirtualLibrary.Repository.Implementation
 
         public override async Task<IEnumerable<BookCopy>> GetAllAsync()
         {
-            var books = await _context.BookCopies
+            var books = _context.BookCopies
                                 .Include(e => e.Book)
                                 .Include(e => e.Item)
-                                .ThenInclude(e => e.Publisher)
-                                .ToListAsync();
+                                    .ThenInclude(e => e.Publisher);
 
-            books.ForEach(e =>
-             {
-                 e.Book.BookCopies.Clear();
-                 e.Item.Publisher.Items.Clear();
-             });
+           foreach(var book in books)
+            {
+                book.Book.BookCopies.Clear();
+                book.Item.Publisher.Items.Clear();
+            };
 
 
             _logger.LogInformation($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
                         "'BookCopy' data was read successfully");
             
-            return books;
+            return await books.ToListAsync();
         }
 
         public override async Task<BookCopy> GetByIdAsync(int id)
@@ -225,32 +225,24 @@ namespace VirtualLibrary.Repository.Implementation
             {
                 try
                 {
-                    var book = await _context.Books
-                        .Include(b => b.BookCopies)
-                        .ThenInclude(b => b.Item)
-                        .FirstOrDefaultAsync(b => b.Id == id);
+                    var bookCopy = await _context.BookCopies
+                        .Include(b => b.Book)
+                        .Include(b => b.Item)
+                        .FirstOrDefaultAsync(b => b.CopyId == id);
 
-                    if (book == null)
+                    if (bookCopy == null)
                     {
                         _logger.LogWarning($"|{GetType().Name}.{MethodBase.GetCurrentMethod().Name}|" +
                             $"'BookCopy' data with id {id} was't found");
                         return null;
                     }
 
-                    var bookCopy = book.BookCopies.FirstOrDefault();
-
-                    if (bookCopy == null)
-                    {
-                        throw new Exception($"Book with id {book.Id} has no BookCopies");
-                    }
-
                     _context.Items.Remove(bookCopy.Item);
-                    _context.BookCopies.Remove(bookCopy);
                     await SaveAsync();
 
-                    if (!book.BookCopies.Any())
+                    if (!bookCopy.Book.BookCopies.Any())
                     {
-                        _context.Books.Remove(book);
+                        _context.Books.Remove(bookCopy.Book);
                         await SaveAsync();
                     }
 
@@ -271,14 +263,21 @@ namespace VirtualLibrary.Repository.Implementation
             }
         }
 
-        public override bool CheckModelField(BookCopy entity, string field)
+        public override bool CheckModelField(string field)
         {
+            if(string.IsNullOrWhiteSpace(field))
+            {
+                _logger.LogWarning($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
+                            $"Model field is not valid [Field = {field}]");
+                return false;
+            }
+
             var listOfNames = new List<string>();
 
-            listOfNames.AddRange(GetPropertyNames(entity));
-            listOfNames.AddRange(GetPropertyNames(entity.Book));
-            listOfNames.AddRange(GetPropertyNames(entity.Item));
-            listOfNames.AddRange(GetPropertyNames(entity.Item.Publisher));
+            listOfNames.AddRange(GetPropertyNames<BookCopy>());
+            listOfNames.AddRange(GetPropertyNames<Book>());
+            listOfNames.AddRange(GetPropertyNames<Item>());
+            listOfNames.AddRange(GetPropertyNames<Publisher>());
 
             if (listOfNames.Contains(field))
             {

@@ -34,21 +34,10 @@ namespace VirtualLibrary.Controllers
         }
 
         [HttpGet]
-        public List<string> Get()
+        public void Get()
         {
-            var book = _context.BookCopies
-                .Include(p => p.Book)
-                .Include(p => p.Item)
-                .ThenInclude(p => p.Publisher)
-                .FirstOrDefault();
-            var listOfNames = new List<string>();
-
-            listOfNames.AddRange(GetPropertyNames(book));
-            listOfNames.AddRange(GetPropertyNames(book.Book));
-            listOfNames.AddRange(GetPropertyNames(book.Item));
-            listOfNames.AddRange(GetPropertyNames(book.Item.Publisher));
-
-            return listOfNames;
+            _context.Items.Remove(_context.Items.Find(10));
+            _context.SaveChanges();
         }
     }
 }

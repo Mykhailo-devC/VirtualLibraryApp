@@ -16,8 +16,8 @@ namespace VirtualLibrary.Controllers
             _dataStore =  dataStore;
         }
 
-        [HttpGet("ordered")]
-        public async Task<IActionResult> GetPublisher([FromHeader] string field)
+        [HttpGet("ordered/{field}")]
+        public async Task<IActionResult> GetPublisher(string field)
         {
             var result = await _dataStore.GetSortedDataAsync(field);
 
@@ -43,20 +43,13 @@ namespace VirtualLibrary.Controllers
         }
 
         [HttpGet("id")]
-        public async Task<IActionResult> GetPublisherById([FromQuery] string id)
+        public async Task<IActionResult> GetPublisherById(string id)
         {
-            var isInteger = int.TryParse(id, out int parsedId);
-
-            if (string.IsNullOrWhiteSpace(id) && !isInteger)
-            {
-                return BadRequest("Incorect Id");
-            }
-
-            var result = await _dataStore.GetDatabyId(parsedId);
+            var result = await _dataStore.GetDatabyId(int.Parse(id));
 
             if(!result.Success)
             {
-                return BadRequest(result);
+                return NotFound(result);
             }
 
             return Ok(result);
@@ -81,45 +74,31 @@ namespace VirtualLibrary.Controllers
         }
 
         [HttpPut("id")]
-        public async Task<ActionResult> PutPublisher([FromQuery] string id, [FromBody] PublisherDTO publisherDto)
+        public async Task<ActionResult> PutPublisher(string id, [FromBody] PublisherDTO publisherDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var isInteger = int.TryParse(id, out int parsedId);
-
-            if (string.IsNullOrWhiteSpace(id) && !isInteger)
-            {
-                return BadRequest("Incorect Id");
-            }
-
-            var result = await _dataStore.UpdateDataAsync(parsedId, publisherDto);
+            var result = await _dataStore.UpdateDataAsync(int.Parse(id), publisherDto);
 
             if (!result.Success)
             {
-                return BadRequest(result);
+                return NotFound(result);
             }
 
             return Ok(result);
         }
 
         [HttpDelete("id")]
-        public async Task<IActionResult> DeletePublisher([FromQuery] string id)
+        public async Task<IActionResult> DeletePublisher(string id)
         {
-            var isInteger = int.TryParse(id, out int parsedId);
-
-            if (string.IsNullOrWhiteSpace(id) && !isInteger)
-            {
-                return BadRequest("Incorect Id");
-            }
-
-            var result = await _dataStore.DeleteDataAsync(parsedId);
+            var result = await _dataStore.DeleteDataAsync(int.Parse(id));
 
             if (!result.Success)
             {
-                return BadRequest(result);
+                return NotFound(result);
             }
 
             return Ok(result);

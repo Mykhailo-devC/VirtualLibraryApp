@@ -86,7 +86,7 @@ namespace VirtualLibrary.Logic.Implementation
             {
                 var books = await _repository.GetAllAsync();
 
-                if(!_repository.CheckModelField(books.FirstOrDefault(), modelField))
+                if(!_repository.CheckModelField(modelField))
                 {
                     return new ActionManagerResponse
                     {

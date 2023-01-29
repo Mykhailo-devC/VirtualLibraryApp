@@ -38,6 +38,8 @@ public partial class VirtualLibraryDbContext : DbContext
     {
         modelBuilder.Entity<Article>(entity =>
         {
+            entity.ToTable(t => t.HasTrigger("delete_MagazineArticle"));
+
             entity.HasKey(e => e.Id).HasName("PK__Articles__3214EC073CFF80C0");
 
             entity.Property(e => e.Author).HasMaxLength(100);
@@ -74,7 +76,7 @@ public partial class VirtualLibraryDbContext : DbContext
 
             entity.HasIndex(e => e.Isbn, "UQ__BookCopi__447D36EAF37893F6").IsUnique();
 
-            entity.Property(e => e.Isbn).HasColumnName("ISBN");//!
+            entity.Property(e => e.Isbn).HasColumnName("ISBN");
 
             entity.HasOne(d => d.Book).WithMany(p => p.BookCopies)
                 .HasForeignKey(d => d.BookId)
@@ -97,12 +99,14 @@ public partial class VirtualLibraryDbContext : DbContext
 
             entity.HasOne(d => d.Publisher).WithMany(p => p.Items)
                 .HasForeignKey(d => d.PublisherId)
-                .OnDelete(DeleteBehavior.Cascade) //delete.cascade
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__Items__Publisher__276EDEB3");
         });
 
         modelBuilder.Entity<Magazine>(entity =>
         {
+            entity.ToTable(t => t.HasTrigger("delete_MagazineArticle_forMagazines"));
+
             entity.HasKey(e => e.Id).HasName("PK__Magazine__3214EC07B650E33C");
 
             entity.Property(e => e.Name).HasMaxLength(50);
@@ -143,6 +147,7 @@ public partial class VirtualLibraryDbContext : DbContext
 
         modelBuilder.Entity<Publisher>(entity =>
         {
+            entity.ToTable(t => t.HasTrigger("delete_books"));
             entity.HasKey(e => e.Id).HasName("PK__Publishe__3214EC073E4D3E3A");
 
             entity.Property(e => e.Name).HasMaxLength(50).HasColumnName("Publisher");
