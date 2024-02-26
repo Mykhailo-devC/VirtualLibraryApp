@@ -11,17 +11,17 @@ namespace VirtualLibrary.Logic.Implementation
         }
 
         private const string NAME = "Publisher";
-        public override async Task<ActionManagerResponse> GetDataAsync()
+        public override async Task<Response> GetDataAsync()
         {
             try
             {
                 var publishers = await _repository.GetAllAsync();
 
-                return new ActionManagerResponse<IEnumerable<Publisher>>
+                return new Response<IEnumerable<Publisher>>
                 {
                     Success = true,
                     Message = "Data was read successfully",
-                    ActionResult = publishers
+                    Data = publishers
                 };
             }
             catch (Exception ex)
@@ -29,7 +29,7 @@ namespace VirtualLibrary.Logic.Implementation
                 _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
                         "Failed read 'Publisher' data");
 
-                return new ActionManagerResponse
+                return new Response
                 {
                     Success = false,
                     Message = "Data read error",
@@ -38,17 +38,17 @@ namespace VirtualLibrary.Logic.Implementation
             }
         }
 
-        public override async Task<ActionManagerResponse> GetDatabyId(int id)
+        public override async Task<Response> GetDatabyId(int id)
         {
             try
             {
                 var publishers = await _repository.GetByIdAsync(id);
 
-                return new ActionManagerResponse<Publisher>
+                return new Response<Publisher>
                 {
                     Success = true,
                     Message = "Data was read successfully",
-                    ActionResult = publishers
+                    Data = publishers
                 };
             }
             catch (Exception ex)
@@ -56,7 +56,7 @@ namespace VirtualLibrary.Logic.Implementation
                 _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
                         "Failed read 'Publisher' data");
 
-                return new ActionManagerResponse
+                return new Response
                 {
                     Success = false,
                     Message = "Data read error",
@@ -65,7 +65,7 @@ namespace VirtualLibrary.Logic.Implementation
             }
         }
 
-        public override async Task<ActionManagerResponse> GetSortedDataAsync(string modelField)
+        public override async Task<Response> GetSortedDataAsync(string modelField)
         {
             try
             {
@@ -73,7 +73,7 @@ namespace VirtualLibrary.Logic.Implementation
 
                 if(!_repository.CheckModelField(modelField))
                 {
-                    return new ActionManagerResponse
+                    return new Response
                     {
                         Success = false,
                         Message = "Data read error",
@@ -90,11 +90,11 @@ namespace VirtualLibrary.Logic.Implementation
                     }
                 }).ToList();
 
-                return new ActionManagerResponse<IEnumerable<Publisher>>
+                return new Response<IEnumerable<Publisher>>
                 {
                     Success = true,
                     Message = "Data was read successfully",
-                    ActionResult = orderedPublishers
+                    Data = orderedPublishers
                 };
             }
             catch (Exception ex)
@@ -102,7 +102,7 @@ namespace VirtualLibrary.Logic.Implementation
                 _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
                         "Failed read 'Publisher' data");
 
-                return new ActionManagerResponse
+                return new Response
                 {
                     Success = false,
                     Message = "Data read error",
@@ -111,66 +111,66 @@ namespace VirtualLibrary.Logic.Implementation
             }
         }
 
-        public override async Task<ActionManagerResponse> AddDataAsync(PublisherDTO entityDTO)
+        public override async Task<Response> AddDataAsync(PublisherDTO entityDTO)
         {
             var newPublisher = await _repository.CreateAsync(entityDTO);
 
             if (newPublisher == null)
             {
-                return new ActionManagerResponse
+                return new Response
                 {
                     Success = false,
                     Message = "Data creating transaction was interrapted",
                 };
             }
 
-            return new ActionManagerResponse<Publisher>
+            return new Response<Publisher>
             {
                 Success = true,
                 Message = "Data was created successfully",
-                ActionResult = newPublisher
+                Data = newPublisher
             };
         }
 
-        public override async Task<ActionManagerResponse> UpdateDataAsync(int id, PublisherDTO entityDTO)
+        public override async Task<Response> UpdateDataAsync(int id, PublisherDTO entityDTO)
         {
             var updatedPublisher = await _repository.UpdateAsync(id, entityDTO);
 
             if (updatedPublisher == null)
             {
-                return new ActionManagerResponse
+                return new Response
                 {
                     Success = false,
                     Message = "Data updating transaction was interrapted",
                 };
             }
 
-            return new ActionManagerResponse<Publisher>
+            return new Response<Publisher>
             {
                 Success = true,
                 Message = "Data has updated successfully",
-                ActionResult = updatedPublisher
+                Data = updatedPublisher
             };
         }
 
-        public override async Task<ActionManagerResponse> DeleteDataAsync(int id)
+        public override async Task<Response> DeleteDataAsync(int id)
         {
             var deletedPublisher = await _repository.DeleteAsync(id);
 
             if (deletedPublisher == null)
             {
-                return new ActionManagerResponse
+                return new Response
                 {
                     Success = false,
                     Message = "Data deleting transaction was interrapted",
                 };
             }
 
-            return new ActionManagerResponse<Publisher>
+            return new Response<Publisher>
             {
                 Success = true,
                 Message = "Data was deleted successfully",
-                ActionResult = deletedPublisher
+                Data = deletedPublisher
             };
         }
 

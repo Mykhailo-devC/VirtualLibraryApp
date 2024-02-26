@@ -20,7 +20,7 @@ namespace VirtualLibrary.Middleware
                 if (!int.TryParse(id, out _))
                 {
                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                    await context.Response.WriteAsJsonAsync(new ActionManagerResponse
+                    await context.Response.WriteAsJsonAsync(new Response
                     {
                         Message = $"Incorrect Id [Value = {id}]",
                         Success = false

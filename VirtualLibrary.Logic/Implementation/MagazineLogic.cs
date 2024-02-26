@@ -15,17 +15,17 @@ namespace VirtualLibrary.Logic.Implementation
         private const string DATE = "Date";
         private const string PUBLISHER = "Publisher";
 
-        public override async Task<ActionManagerResponse> GetDataAsync()
+        public override async Task<Response> GetDataAsync()
         {
             try
             {
                 var magazines = await _repository.GetAllAsync();
 
-                return new ActionManagerResponse<IEnumerable<MagazineCopy>>
+                return new Response<IEnumerable<MagazineCopy>>
                 {
                     Success = true,
                     Message = "Data was read successfully",
-                    ActionResult = magazines
+                    Data = magazines
                 };
             }
             catch (Exception ex)
@@ -33,7 +33,7 @@ namespace VirtualLibrary.Logic.Implementation
                 _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
                         "Failed read 'Magazine' data");
 
-                return new ActionManagerResponse
+                return new Response
                 {
                     Success = false,
                     Message = "Data read error",
@@ -42,17 +42,17 @@ namespace VirtualLibrary.Logic.Implementation
             }
         }
 
-        public override async Task<ActionManagerResponse> GetDatabyId(int id)
+        public override async Task<Response> GetDatabyId(int id)
         {
             try
             {
                 var magazine = await _repository.GetByIdAsync(id);
 
-                return new ActionManagerResponse<MagazineCopy>
+                return new Response<MagazineCopy>
                 {
                     Success = true,
                     Message = "Data was read successfully",
-                    ActionResult = magazine
+                    Data = magazine
                 };
             }
             catch (Exception ex)
@@ -60,7 +60,7 @@ namespace VirtualLibrary.Logic.Implementation
                 _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
                         "Failed read 'Magazine' data");
 
-                return new ActionManagerResponse
+                return new Response
                 {
                     Success = false,
                     Message = "Data read error",
@@ -69,7 +69,7 @@ namespace VirtualLibrary.Logic.Implementation
             }
         }
 
-        public override async Task<ActionManagerResponse> GetSortedDataAsync(string modelField)
+        public override async Task<Response> GetSortedDataAsync(string modelField)
         {
             try
             {
@@ -77,7 +77,7 @@ namespace VirtualLibrary.Logic.Implementation
 
                 if (!_repository.CheckModelField(modelField))
                 {
-                    return new ActionManagerResponse
+                    return new Response
                     {
                         Success = false,
                         Message = "Data read error",
@@ -97,11 +97,11 @@ namespace VirtualLibrary.Logic.Implementation
                     }
                 }).ToList();
 
-                return new ActionManagerResponse<IEnumerable<MagazineCopy>>
+                return new Response<IEnumerable<MagazineCopy>>
                 {
                     Success = true,
                     Message = "Data was read successfully",
-                    ActionResult = magazines
+                    Data = magazines
                 };
             }
             catch (Exception ex)
@@ -109,7 +109,7 @@ namespace VirtualLibrary.Logic.Implementation
                 _logger.LogError(ex, $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}" +
                         "Failed read 'Magazine' data");
 
-                return new ActionManagerResponse
+                return new Response
                 {
                     Success = false,
                     Message = "Data read error",
@@ -118,51 +118,51 @@ namespace VirtualLibrary.Logic.Implementation
             }
         }
 
-        public override async Task<ActionManagerResponse> AddDataAsync(MagazineDTO entityDTO)
+        public override async Task<Response> AddDataAsync(MagazineDTO entityDTO)
         {
             var newMagazine = await _repository.CreateAsync(entityDTO);
 
             if (newMagazine == null)
             {
-                return new ActionManagerResponse
+                return new Response
                 {
                     Success = false,
                     Message = "Data creating transaction was interrapted",
                 };
             }
 
-            return new ActionManagerResponse<MagazineCopy>
+            return new Response<MagazineCopy>
             {
                 Success = true,
                 Message = "Data was read successfully",
-                ActionResult = newMagazine
+                Data = newMagazine
             };
         }
 
-        public override async Task<ActionManagerResponse> DeleteDataAsync(int id)
+        public override async Task<Response> DeleteDataAsync(int id)
         {
             var deletedMagazine = await _repository.DeleteAsync(id);
 
             if (deletedMagazine == null)
             {
-                return new ActionManagerResponse
+                return new Response
                 {
                     Success = false,
                     Message = "Data deleting transaction was interrapted",
                 };
             }
 
-            return new ActionManagerResponse<MagazineCopy>
+            return new Response<MagazineCopy>
             {
                 Success = true,
                 Message = "Data was read successfully",
-                ActionResult = deletedMagazine
+                Data = deletedMagazine
             };
         }
 
         
 
-        public override Task<ActionManagerResponse> UpdateDataAsync(int id, MagazineDTO entityDTO)
+        public override Task<Response> UpdateDataAsync(int id, MagazineDTO entityDTO)
         {
             throw new NotImplementedException();
         }

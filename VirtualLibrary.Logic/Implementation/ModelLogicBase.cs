@@ -14,11 +14,11 @@ namespace VirtualLibrary.Logic.Implementation
             _repository = repository;
             _logger = logger;
         }
-        public abstract Task<ActionManagerResponse> GetDataAsync();
-        public abstract Task<ActionManagerResponse> GetSortedDataAsync(string modelField);
-        public abstract Task<ActionManagerResponse> GetDatabyId(int id);
-        public abstract Task<ActionManagerResponse> AddDataAsync(K entityDTO);
-        public abstract Task<ActionManagerResponse> UpdateDataAsync(int id, K entityDTO);
-        public abstract Task<ActionManagerResponse> DeleteDataAsync(int id);
+        public abstract Task<Response> GetDataAsync();
+        public abstract Task<Response> GetSortedDataAsync(string modelField);
+        public abstract Task<Response> GetDatabyId(int id);
+        public abstract Task<Response> AddDataAsync(K entityDTO);
+        public abstract Task<Response> UpdateDataAsync(int id, K entityDTO);
+        public abstract Task<Response> DeleteDataAsync(int id);
     }
 }

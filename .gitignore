@@ -8,3 +8,5 @@ VirtualLibrary.Repository/obj/
 VirtualLibrary.Logic/bin/
 VirtualLibrary.Models/bin/
 VirtualLibrary.Repository/bin/
+/VirtualLibrary.Tests/bin/Debug/net7.0
+/VirtualLibrary.Tests/obj

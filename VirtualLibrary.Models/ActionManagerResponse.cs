@@ -1,11 +1,11 @@
 ﻿namespace VirtualLibrary.Models;
 
-public class ActionManagerResponse<T> : ActionManagerResponse where T : class
+public class Response<T> : Response where T : class
 {
-    public T ActionResult { get; set; } = null;
+    public T Data { get; set; } = null;
 }
 
-public class ActionManagerResponse
+public class Response
 {
     public string Message { get; set; }
     public bool Success { get; set; }
