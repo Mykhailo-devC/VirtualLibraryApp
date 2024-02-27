@@ -38,11 +38,11 @@ namespace VirtualLibrary.Logic.Implementation
             }
         }
 
-        public override async Task<Response> GetDatabyId(int id)
+        public override async Task<Response> GetDatabyId(string id)
         {
             try
             {
-                var publishers = await _repository.GetByIdAsync(id);
+                var publishers = await _repository.GetByIdAsync(int.Parse(id));
 
                 return new Response<Publisher>
                 {
@@ -132,9 +132,9 @@ namespace VirtualLibrary.Logic.Implementation
             };
         }
 
-        public override async Task<Response> UpdateDataAsync(int id, PublisherDTO entityDTO)
+        public override async Task<Response> UpdateDataAsync(string id, PublisherDTO entityDTO)
         {
-            var updatedPublisher = await _repository.UpdateAsync(id, entityDTO);
+            var updatedPublisher = await _repository.UpdateAsync(int.Parse(id), entityDTO);
 
             if (updatedPublisher == null)
             {
@@ -153,9 +153,9 @@ namespace VirtualLibrary.Logic.Implementation
             };
         }
 
-        public override async Task<Response> DeleteDataAsync(int id)
+        public override async Task<Response> DeleteDataAsync(string id)
         {
-            var deletedPublisher = await _repository.DeleteAsync(id);
+            var deletedPublisher = await _repository.DeleteAsync(int.Parse(id));
 
             if (deletedPublisher == null)
             {

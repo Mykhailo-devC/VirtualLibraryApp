@@ -45,7 +45,7 @@ namespace VirtualLibrary.Controllers
         [HttpGet("id")]
         public async Task<IActionResult> GetPublisherById(string id)
         {
-            var result = await _dataStore.GetDatabyId(int.Parse(id));
+            var result = await _dataStore.GetDatabyId(id);
 
             if(!result.Success)
             {
@@ -81,7 +81,7 @@ namespace VirtualLibrary.Controllers
                 return BadRequest(ModelState);
             }
 
-            var result = await _dataStore.UpdateDataAsync(int.Parse(id), publisherDto);
+            var result = await _dataStore.UpdateDataAsync(id, publisherDto);
 
             if (!result.Success)
             {
@@ -94,7 +94,7 @@ namespace VirtualLibrary.Controllers
         [HttpDelete("id")]
         public async Task<IActionResult> DeletePublisher(string id)
         {
-            var result = await _dataStore.DeleteDataAsync(int.Parse(id));
+            var result = await _dataStore.DeleteDataAsync(id);
 
             if (!result.Success)
             {

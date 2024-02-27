@@ -16,9 +16,9 @@ namespace VirtualLibrary.Logic.Implementation
         }
         public abstract Task<Response> GetDataAsync();
         public abstract Task<Response> GetSortedDataAsync(string modelField);
-        public abstract Task<Response> GetDatabyId(int id);
+        public abstract Task<Response> GetDatabyId(string id);
         public abstract Task<Response> AddDataAsync(K entityDTO);
-        public abstract Task<Response> UpdateDataAsync(int id, K entityDTO);
-        public abstract Task<Response> DeleteDataAsync(int id);
+        public abstract Task<Response> UpdateDataAsync(string id, K entityDTO);
+        public abstract Task<Response> DeleteDataAsync(string id);
     }
 }

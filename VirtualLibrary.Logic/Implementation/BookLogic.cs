@@ -43,11 +43,11 @@ namespace VirtualLibrary.Logic.Implementation
             }
         }
 
-        public override async Task<Response> GetDatabyId(int id)
+        public override async Task<Response> GetDatabyId(string id)
         {
             try
             {
-                var book = await _repository.GetByIdAsync(id);
+                var book = await _repository.GetByIdAsync(int.Parse(id));
 
                 if (book == null)
                 {
@@ -152,14 +152,14 @@ namespace VirtualLibrary.Logic.Implementation
             };
         }
 
-        public override Task<Response> UpdateDataAsync(int id, BookDTO entityDTO)
+        public override Task<Response> UpdateDataAsync(string id, BookDTO entityDTO)
         {
             throw new NotImplementedException();
         }
 
-        public override async Task<Response> DeleteDataAsync(int id)
+        public override async Task<Response> DeleteDataAsync(string id)
         {
-            var deletedBook = await _repository.DeleteAsync(id);
+            var deletedBook = await _repository.DeleteAsync(int.Parse(id));
 
             if (deletedBook == null)
             {

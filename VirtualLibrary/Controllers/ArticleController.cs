@@ -44,7 +44,7 @@ namespace VirtualLibrary.Controllers
         [HttpGet("id")]
         public async Task<IActionResult> GetArticleByID(string id)
         {
-            var result = await _dataStore.GetDatabyId(int.Parse(id));
+            var result = await _dataStore.GetDatabyId(id);
 
             if (!result.Success)
             {
@@ -101,7 +101,7 @@ namespace VirtualLibrary.Controllers
         [HttpDelete("id")]
         public async Task<IActionResult> DeleteArticle(string id)
         {
-            var result = await _dataStore.DeleteDataAsync(int.Parse(id));
+            var result = await _dataStore.DeleteDataAsync(id);
 
             if (!result.Success)
             {

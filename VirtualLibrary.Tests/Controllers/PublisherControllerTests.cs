@@ -9,285 +9,272 @@ using System.Threading.Tasks;
 using VirtualLibrary.Controllers;
 using VirtualLibrary.Logic.Interface;
 using VirtualLibrary.Models;
+using VirtualLibrary.Tests.Fakes;
 
 namespace VirtualLibrary.Tests.Controllers
 {
     public class PublisherControllerTests
     {
         private Mock<ILogger<PublisherController>> _logger;
-        private Mock<IModelLogic<Publisher, PublisherDTO>> _modelLogic;
-        private PublisherController _controller;
+
+        private PublisherController _controllerWithData;
+        private PublisherController _controllerEmptyData;
+        private PublisherController _controllerWithError;
+
+        private IEnumerable<Publisher> _initData;
         public PublisherControllerTests()
         {
             _logger = new Mock<ILogger<PublisherController>>();
-            _modelLogic = new Mock<IModelLogic<Publisher, PublisherDTO>>();
 
-            _controller = new PublisherController(_logger.Object, _modelLogic.Object);
+            _initData = new List<Publisher>
+                {
+                    new Publisher {Id = 1, Name = "John"},
+                    new Publisher {Id = 2, Name = "Mike"},
+                    new Publisher {Id = 3, Name = "Chris"}
+                };
+
+            _controllerWithData = new PublisherController(_logger.Object,
+                new ModelLogicFake<Publisher, PublisherDTO>(_initData));
+
+            _controllerEmptyData = new PublisherController(_logger.Object,
+                new ModelLogicFake<Publisher, PublisherDTO>(new List<Publisher>()));
+
+            _controllerWithError = new PublisherController(_logger.Object,
+                new ModelLogicFake<Publisher, PublisherDTO>(null));
         }
 
         [Fact]
-        public async void GetPublisher_GetResponseSuccessTrue_ReturnOk()
+        public async void GetPublisher_InitDataNotEmpty_ReturnOkWithPublisherList()
         {
-            //Arrange
-            var response = new Response<IEnumerable<Publisher>> { Success = true };
-
-            _modelLogic.Setup(x => x.GetDataAsync()).ReturnsAsync(response);
-
-            //Act
-
-            var result = await _controller.GetPublisher();
-
-            //Assert
+            var result = await _controllerWithData.GetPublisher() as OkObjectResult;
+            var resultData = (result?.Value as Response<IEnumerable<Publisher>>)?.Data ?? Enumerable.Empty<Publisher>();
 
             Assert.NotNull(result);
-            Assert.IsType<OkObjectResult>(result);
+            Assert.NotEmpty(resultData);
         }
 
         [Fact]
-        public async void GetPublisher_GetResponseSuccessFalse_ReturnBadRequest()
+        public async void GetPublisher_InitDataEmpty_ReturnOkWithEmpryList()
         {
-            //Arrange
-            var response = new Response<IEnumerable<Publisher>> { Success = false };
-
-            _modelLogic.Setup(x => x.GetDataAsync()).ReturnsAsync(response);
-
-            //Act
-
-            var result = await _controller.GetPublisher();
-
-            //Assert
+            var result = await _controllerEmptyData.GetPublisher() as OkObjectResult;
+            var resultData = (result?.Value as Response<IEnumerable<Publisher>>)?.Data;
 
             Assert.NotNull(result);
-            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Empty(resultData);
         }
 
         [Fact]
-        public async void GetPublisherOrdered_GetResponseSuccessTrue_ReturnOk()
+        public async void GetPublisher_FailGetData_ReturnBadRequest()
         {
-            //Arrange
-            var response = new Response<IEnumerable<Publisher>> { Success = true };
-            var field = "field";
-
-            _modelLogic.Setup(x => x.GetSortedDataAsync(field)).ReturnsAsync(response);
-
-            //Act
-
-            var result = await _controller.GetPublisher(field);
-
-            //Assert
+            var result = await _controllerWithError.GetPublisher() as OkObjectResult;
+            var resultData = (result?.Value as Response<IEnumerable<Publisher>>)?.Data;
 
             Assert.NotNull(result);
-            Assert.IsType<OkObjectResult>(result);
+            Assert.Null(resultData);
         }
 
-        [Fact]
-        public async void GetPublisherOrdered_GetResponseSuccessFalse_ReturnBadRequest()
+        [Theory]
+        [InlineData("Id")]
+        [InlineData("Name")]
+        public async void GetPublisherOrdered_InitDataNotEmpty_ValidProperty_ReturnOkWithPublisherList(string property)
         {
-            //Arrange
-            var response = new Response<IEnumerable<Publisher>> { Success = false };
-            var field = "field";
-
-            _modelLogic.Setup(x => x.GetSortedDataAsync(field)).ReturnsAsync(response);
-
-            //Act
-
-            var result = await _controller.GetPublisher(field);
-
-            //Assert
+            var result = await _controllerWithData.GetPublisher(property) as OkObjectResult;
+            var resultData = (result?.Value as Response<IEnumerable<Publisher>>)?.Data ?? Enumerable.Empty<Publisher>();
 
             Assert.NotNull(result);
-            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.NotEmpty(resultData);
         }
 
-        [Fact]
-        public async void GetPublisherById_GetResponseSuccessTrue_ReturnOk()
+        [Theory]
+        [InlineData("1")]
+        [InlineData(null)]
+        public async void GetPublisherOrdered_InitDataNotEmpty_InvalidProperty_ReturnBadRequest(string property)
         {
-            //Arrange
-            var response = new Response<IEnumerable<Publisher>> { Success = true };
-            var id = "0";
-
-            _modelLogic.Setup(x => x.GetDatabyId(int.Parse(id))).ReturnsAsync(response);
-
-            //Act
-
-            var result = await _controller.GetPublisherById(id);
-
-            //Assert
+            var result = await _controllerWithData.GetPublisher(property) as BadRequestObjectResult;
+            var resultData = (result?.Value as Response<IEnumerable<Publisher>>)?.Data;
 
             Assert.NotNull(result);
-            Assert.IsType<OkObjectResult>(result);
+            Assert.Null(resultData);
         }
 
         [Fact]
-        public async void GetPublisherById_GetResponseSuccessFalse_ReturnNotFound()
+        public async void GetPublisherOrdered_InitDataEmpty_ValidProperty_ReturnOkWithEmptyList()
         {
-            //Arrange
-            var response = new Response<IEnumerable<Publisher>> { Success = false };
-            var id = "0";
-
-            _modelLogic.Setup(x => x.GetDatabyId(int.Parse(id))).ReturnsAsync(response);
-
-            //Act
-
-            var result = await _controller.GetPublisherById(id);
-
-            //Assert
+            var result = await _controllerEmptyData.GetPublisher("Name") as OkObjectResult;
+            var resultData = (result?.Value as Response<IEnumerable<Publisher>>)?.Data;
 
             Assert.NotNull(result);
-            Assert.IsType<NotFoundObjectResult>(result);
+            Assert.Empty(resultData);
         }
 
         [Fact]
-        public async void PostPublisher_GetResponseSuccessTrue_ReturnOk()
+        public async void GetPublisherOrdered_FailGetData_ValidProperty_ReturnBadRequest()
         {
-            //Arrange
-            var response = new Response<IEnumerable<Publisher>> { Success = true };
-            var publisher = new PublisherDTO { Name = "name" };
-
-            _modelLogic.Setup(x => x.AddDataAsync(publisher)).ReturnsAsync(response);
-
-            //Act
-
-            var result = await _controller.PostPublisher(publisher);
-
-            //Assert
+            var result = await _controllerWithError.GetPublisher("Name") as BadRequestObjectResult;
+            var resultData = (result?.Value as Response<IEnumerable<Publisher>>)?.Data;
 
             Assert.NotNull(result);
-            Assert.IsType<OkObjectResult>(result);
+            Assert.Null(resultData);
         }
 
-        [Fact]
-        public async void PostPublisher_GetResponseSuccessFalse_ReturnBadRequest()
+        [Theory]
+        [InlineData("1")]
+        [InlineData("2")]
+        public async void GetPublisherById_InitDataNotEmpty_ValidId_ReturnOkWithPublisher(string id)
         {
-            //Arrange
-            var response = new Response<IEnumerable<Publisher>> { Success = false };
-            var publisher = new PublisherDTO { Name = "name" };
+            InitController(_initData);
 
-            _modelLogic.Setup(x => x.AddDataAsync(publisher)).ReturnsAsync(response);
-
-            //Act
-
-            var result = await _controller.PostPublisher(publisher);
-
-            //Assert
+            var result = await _controller.GetPublisherById(id) as OkObjectResult;
+            var resultData = (result?.Value as Response<Publisher>)?.Data;
 
             Assert.NotNull(result);
-            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.NotNull(resultData);
+            Assert.Equal(resultData.Id.ToString(), id);
+        }
+
+
+        [Theory]
+        [InlineData("0")]
+        [InlineData(null)]
+        public async void GetPublisherById_InitDataNotEmpty_InvalidId_ReturnNotFound(string id)
+        {
+            InitController(_initData);
+
+            var result = await _controller.GetPublisherById(id) as NotFoundObjectResult;
+            var resultData = (result?.Value as Response<Publisher>)?.Data;
+
+            Assert.NotNull(result);
+            Assert.Null(resultData);
         }
 
         [Fact]
-        public async void PostPublisher_InvalidModel_ReturnBadRequest()
+        public async void GetPublisherById_InitDataEmpty_ValidId_ReturnNotFound()
         {
-            //Arrange
-            var response = new Response<IEnumerable<Publisher>> { Success = false };
-            var publisher = new PublisherDTO { Name = null };
+            InitController(null);
 
+            var result = await _controller.GetPublisherById("1") as NotFoundObjectResult;
+            var resultData = (result?.Value as Response<Publisher>)?.Data;
+
+            Assert.NotNull(result);
+            Assert.Null(resultData);
+        }
+
+        [Theory]
+        [InlineData("Tom")]
+        [InlineData("333")]
+        public async void PostPublisher_InitDataNotEmpty_ValidDTO_ReturnOkWithNewPublisher(string name)
+        {
+            PublisherDTO publisher = new PublisherDTO { Name = name };
+            InitController(_initData);
+
+            var result = await _controller.PostPublisher(publisher) as OkObjectResult;
+            var resultData = (result?.Value as Response<Publisher>)?.Data;
+
+            Assert.NotNull(result);
+            Assert.NotNull(resultData);
+            Assert.Contains(resultData, _initData);
+        }
+
+        [Fact]
+        public async void PostPublisher_InitDataNotEmpty_InvalidDTO_ReturnBadRequest()
+        {
+            PublisherDTO publisher = null;
+            InitController(_initData);
             _controller.ModelState.AddModelError("", "");
-            //Act
 
-            var result = await _controller.PostPublisher(publisher);
-
-            //Assert
+            var result = await _controller.PostPublisher(publisher) as BadRequestObjectResult;
+            var resultData = (result?.Value as Response<Publisher>)?.Data;
 
             Assert.NotNull(result);
-            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Null(resultData);
+        }
+
+
+
+        [Theory]
+        [InlineData("1","Tom")]
+        [InlineData("2","333")]
+        public async void PutPublisher_InitDataNotEmpty_ValidDTO_ValidId_ReturnOkWithUpdatedPublisher(string id, string name)
+        {
+            PublisherDTO publisher = new PublisherDTO { Name = name };
+            InitController(_initData);
+
+            var result = await _controller.PutPublisher(id, publisher) as OkObjectResult;
+            var resultData = (result?.Value as Response<Publisher>)?.Data;
+
+            Assert.NotNull(result);
+            Assert.NotNull(resultData);
+            Assert.Contains(_initData, x => x.Name == name && x.Id.ToString() == id);
+        }
+
+        [Theory]
+        [InlineData(null, "Tom")]
+        [InlineData("0", "333")]
+        public async void PutPublisher_InitDataNotEmpty_ValidDTO_InvalidId_ReturnNotFound(string id, string name)
+        {
+            PublisherDTO publisher = new PublisherDTO { Name = name };
+            InitController(_initData);
+
+            var result = await _controller.PutPublisher(id, publisher) as NotFoundObjectResult;
+            var resultData = (result?.Value as Response<Publisher>)?.Data;
+
+            Assert.NotNull(result);
+            Assert.Null(resultData);
         }
 
         [Fact]
-        public async void PutPublisher_GetResponseSuccessTrue_ReturnOk()
+        public async void PutPublisher_InitDataNotEmpty_InvalidDTO_ValidId_ReturnBadRequest()
         {
-            //Arrange
-            var response = new Response<IEnumerable<Publisher>> { Success = true };
-            var id = "0";
-            var publisher = new PublisherDTO { Name = "name" };
-
-            _modelLogic.Setup(x => x.UpdateDataAsync(int.Parse(id) ,publisher)).ReturnsAsync(response);
-
-            //Act
-
-            var result = await _controller.PutPublisher(id, publisher);
-
-            //Assert
-
-            Assert.NotNull(result);
-            Assert.IsType<OkObjectResult>(result);
-        }
-
-        [Fact]
-        public async void PutPublisher_GetResponseSuccessFalse_ReturnNotFound()
-        {
-            //Arrange
-            var response = new Response<IEnumerable<Publisher>> { Success = false };
-            var id = "0";
-            var publisher = new PublisherDTO { Name = "name" };
-
-            _modelLogic.Setup(x => x.UpdateDataAsync(int.Parse(id), publisher)).ReturnsAsync(response);
-
-            //Act
-
-            var result = await _controller.PutPublisher(id, publisher);
-
-            //Assert
-
-            Assert.NotNull(result);
-            Assert.IsType<NotFoundObjectResult>(result);
-        }
-
-        [Fact]
-        public async void PutPublisher_InvalidModel_ReturnBadRequest()
-        {
-            //Arrange
-            var response = new Response<IEnumerable<Publisher>> { Success = false };
-            var id = "0";
-            var publisher = new PublisherDTO { Name = null };
-
+            PublisherDTO publisher = null;
+            InitController(_initData);
             _controller.ModelState.AddModelError("", "");
-            //Act
 
-            var result = await _controller.PutPublisher(id, publisher);
-
-            //Assert
+            var result = await _controller.PutPublisher("1", publisher) as BadRequestObjectResult;
+            var resultData = (result?.Value as Response<Publisher>)?.Data;
 
             Assert.NotNull(result);
-            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Null(resultData);
+        }
+
+        [Theory]
+        [InlineData("1")]
+        [InlineData("2")]
+        public async void DeletePublisher_InitDataNotEmpty_ValidId_ReturnOkWithDeletedPublisher(string id)
+        {
+            InitController(_initData);
+
+            var result = await _controller.DeletePublisher(id) as OkObjectResult;
+            var resultData = (result?.Value as Response<Publisher>)?.Data;
+
+            Assert.NotNull(result);
+            Assert.NotNull(resultData);
+            Assert.DoesNotContain(_initData, x => x.Id.ToString() == id);
+        }
+
+        [Theory]
+        [InlineData("0")]
+        [InlineData(null)]
+        public async void DeletePublisher_InitDataNotEmpty_InvalidId_ReturnNotFound(string id)
+        {
+            InitController(_initData);
+
+            var result = await _controller.DeletePublisher(id) as NotFoundObjectResult;
+            var resultData = (result?.Value as Response<Publisher>)?.Data;
+
+            Assert.NotNull(result);
+            Assert.Null(resultData);
         }
 
         [Fact]
-        public async void DeletePublisher_GetResponseSuccessTrue_ReturnOk()
+        public async void DeletePublisher_InitDataEmpty_ValidId_ReturnNotFound()
         {
-            //Arrange
-            var response = new Response<IEnumerable<Publisher>> { Success = true };
-            var id = "0";
+            InitController(null);
 
-            _modelLogic.Setup(x => x.DeleteDataAsync(int.Parse(id))).ReturnsAsync(response);
-
-            //Act
-
-            var result = await _controller.DeletePublisher(id);
-
-            //Assert
+            var result = await _controller.DeletePublisher("1") as NotFoundObjectResult;
+            var resultData = (result?.Value as Response<Publisher>)?.Data;
 
             Assert.NotNull(result);
-            Assert.IsType<OkObjectResult>(result);
-        }
-
-        [Fact]
-        public async void DeletePublisher_GetResponseSuccessFalse_ReturnNotFound()
-        {
-            //Arrange
-            var response = new Response<IEnumerable<Publisher>> { Success = false };
-            var id = "0";
-
-            _modelLogic.Setup(x => x.DeleteDataAsync(int.Parse(id))).ReturnsAsync(response);
-
-            //Act
-
-            var result = await _controller.DeletePublisher(id);
-
-            //Assert
-
-            Assert.NotNull(result);
-            Assert.IsType<NotFoundObjectResult>(result);
+            Assert.Null(resultData);
         }
     }
 }

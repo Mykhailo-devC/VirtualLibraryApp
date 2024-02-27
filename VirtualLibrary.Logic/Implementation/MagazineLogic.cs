@@ -42,11 +42,11 @@ namespace VirtualLibrary.Logic.Implementation
             }
         }
 
-        public override async Task<Response> GetDatabyId(int id)
+        public override async Task<Response> GetDatabyId(string id)
         {
             try
             {
-                var magazine = await _repository.GetByIdAsync(id);
+                var magazine = await _repository.GetByIdAsync(int.Parse(id));
 
                 return new Response<MagazineCopy>
                 {
@@ -139,9 +139,9 @@ namespace VirtualLibrary.Logic.Implementation
             };
         }
 
-        public override async Task<Response> DeleteDataAsync(int id)
+        public override async Task<Response> DeleteDataAsync(string id)
         {
-            var deletedMagazine = await _repository.DeleteAsync(id);
+            var deletedMagazine = await _repository.DeleteAsync(int.Parse(id));
 
             if (deletedMagazine == null)
             {
@@ -162,7 +162,7 @@ namespace VirtualLibrary.Logic.Implementation
 
         
 
-        public override Task<Response> UpdateDataAsync(int id, MagazineDTO entityDTO)
+        public override Task<Response> UpdateDataAsync(string id, MagazineDTO entityDTO)
         {
             throw new NotImplementedException();
         }

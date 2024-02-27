@@ -43,11 +43,11 @@ namespace VirtualLibrary.Logic.Implementation
             }
         }
 
-        public override async Task<Response> GetDatabyId(int id)
+        public override async Task<Response> GetDatabyId(string id)
         {
             try
             {
-                var article = await _repository.GetByIdAsync(id);
+                var article = await _repository.GetByIdAsync(int.Parse(id));
 
                 return new Response<ArticleCopy>
                 {
@@ -140,9 +140,9 @@ namespace VirtualLibrary.Logic.Implementation
             };
         }
 
-        public override async Task<Response> DeleteDataAsync(int id)
+        public override async Task<Response> DeleteDataAsync(string id)
         {
-            var deletedArticle = await _repository.DeleteAsync(id);
+            var deletedArticle = await _repository.DeleteAsync(int.Parse(id));
 
             if (deletedArticle == null)
             {
@@ -163,7 +163,7 @@ namespace VirtualLibrary.Logic.Implementation
 
         
 
-        public override Task<Response> UpdateDataAsync(int id, ArticleDTO entityDTO)
+        public override Task<Response> UpdateDataAsync(string id, ArticleDTO entityDTO)
         {
             throw new NotImplementedException();
         }

@@ -4,9 +4,9 @@
     {
         public Task<Response> GetDataAsync();
         public Task<Response> GetSortedDataAsync(string modelField);
-        public Task<Response> GetDatabyId(int id);
+        public Task<Response> GetDatabyId(string id);
         public Task<Response> AddDataAsync(K entityDTO);
-        public Task<Response> UpdateDataAsync(int id, K entityDTO);
-        public Task<Response> DeleteDataAsync(int id);
+        public Task<Response> UpdateDataAsync(string id, K entityDTO);
+        public Task<Response> DeleteDataAsync(string id);
     }
 }
