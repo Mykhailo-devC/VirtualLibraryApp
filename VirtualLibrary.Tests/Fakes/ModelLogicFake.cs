@@ -78,6 +78,7 @@ namespace VirtualLibrary.Tests.Fakes
             {
                 var idProperty = typeof(TEntity).GetProperties().First(x => x.Name.ToLower().Contains(nameof(id)));
                 var entityToDelete = _entities.First(x => idProperty.GetValue(x).Equals(int.Parse(id)));
+
                 (_entities as ICollection<TEntity>).Remove(entityToDelete);
                 return new Response<TEntity>
                 {

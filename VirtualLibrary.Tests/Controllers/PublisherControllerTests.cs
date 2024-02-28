@@ -1,13 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VirtualLibrary.Controllers;
-using VirtualLibrary.Logic.Interface;
 using VirtualLibrary.Models;
 using VirtualLibrary.Tests.Fakes;
 
@@ -66,7 +60,7 @@ namespace VirtualLibrary.Tests.Controllers
         [Fact]
         public async void GetPublisher_FailGetData_ReturnBadRequest()
         {
-            var result = await _controllerWithError.GetPublisher() as OkObjectResult;
+            var result = await _controllerWithError.GetPublisher() as BadRequestObjectResult;
             var resultData = (result?.Value as Response<IEnumerable<Publisher>>)?.Data;
 
             Assert.NotNull(result);
@@ -117,14 +111,22 @@ namespace VirtualLibrary.Tests.Controllers
             Assert.Null(resultData);
         }
 
+        [Fact]
+        public async void GetPublisherOrdered_FailGetData_ReturnBadRequest()
+        {
+            var result = await _controllerWithError.GetPublisher("Name") as BadRequestObjectResult;
+            var resultData = (result?.Value as Response<IEnumerable<Publisher>>)?.Data;
+
+            Assert.NotNull(result);
+            Assert.Null(resultData);
+        }
+
         [Theory]
         [InlineData("1")]
         [InlineData("2")]
         public async void GetPublisherById_InitDataNotEmpty_ValidId_ReturnOkWithPublisher(string id)
         {
-            InitController(_initData);
-
-            var result = await _controller.GetPublisherById(id) as OkObjectResult;
+            var result = await _controllerWithData.GetPublisherById(id) as OkObjectResult;
             var resultData = (result?.Value as Response<Publisher>)?.Data;
 
             Assert.NotNull(result);
@@ -138,9 +140,7 @@ namespace VirtualLibrary.Tests.Controllers
         [InlineData(null)]
         public async void GetPublisherById_InitDataNotEmpty_InvalidId_ReturnNotFound(string id)
         {
-            InitController(_initData);
-
-            var result = await _controller.GetPublisherById(id) as NotFoundObjectResult;
+            var result = await _controllerWithData.GetPublisherById(id) as NotFoundObjectResult;
             var resultData = (result?.Value as Response<Publisher>)?.Data;
 
             Assert.NotNull(result);
@@ -150,10 +150,18 @@ namespace VirtualLibrary.Tests.Controllers
         [Fact]
         public async void GetPublisherById_InitDataEmpty_ValidId_ReturnNotFound()
         {
-            InitController(null);
-
-            var result = await _controller.GetPublisherById("1") as NotFoundObjectResult;
+            var result = await _controllerEmptyData.GetPublisherById("1") as NotFoundObjectResult;
             var resultData = (result?.Value as Response<Publisher>)?.Data;
+
+            Assert.NotNull(result);
+            Assert.Null(resultData);
+        }
+
+        [Fact]
+        public async void GetPublisherById_FailGetData_ReturnNotFound()
+        {
+            var result = await _controllerWithError.GetPublisherById("1") as NotFoundObjectResult;
+            var resultData = (result?.Value as Response<IEnumerable<Publisher>>)?.Data;
 
             Assert.NotNull(result);
             Assert.Null(resultData);
@@ -165,9 +173,8 @@ namespace VirtualLibrary.Tests.Controllers
         public async void PostPublisher_InitDataNotEmpty_ValidDTO_ReturnOkWithNewPublisher(string name)
         {
             PublisherDTO publisher = new PublisherDTO { Name = name };
-            InitController(_initData);
 
-            var result = await _controller.PostPublisher(publisher) as OkObjectResult;
+            var result = await _controllerWithData.PostPublisher(publisher) as OkObjectResult;
             var resultData = (result?.Value as Response<Publisher>)?.Data;
 
             Assert.NotNull(result);
@@ -179,17 +186,26 @@ namespace VirtualLibrary.Tests.Controllers
         public async void PostPublisher_InitDataNotEmpty_InvalidDTO_ReturnBadRequest()
         {
             PublisherDTO publisher = null;
-            InitController(_initData);
-            _controller.ModelState.AddModelError("", "");
+            _controllerWithData.ModelState.AddModelError("", "");
 
-            var result = await _controller.PostPublisher(publisher) as BadRequestObjectResult;
+            var result = await _controllerWithData.PostPublisher(publisher) as BadRequestObjectResult;
             var resultData = (result?.Value as Response<Publisher>)?.Data;
 
             Assert.NotNull(result);
             Assert.Null(resultData);
         }
 
+        [Fact]
+        public async void PostPublisher_FailPostData_ReturnBadRequest()
+        {
+            PublisherDTO publisher = null;
 
+            var result = await _controllerWithError.PostPublisher(publisher) as BadRequestObjectResult;
+            var resultData = (result?.Value as Response<IEnumerable<Publisher>>)?.Data;
+
+            Assert.NotNull(result);
+            Assert.Null(resultData);
+        }
 
         [Theory]
         [InlineData("1","Tom")]
@@ -197,9 +213,8 @@ namespace VirtualLibrary.Tests.Controllers
         public async void PutPublisher_InitDataNotEmpty_ValidDTO_ValidId_ReturnOkWithUpdatedPublisher(string id, string name)
         {
             PublisherDTO publisher = new PublisherDTO { Name = name };
-            InitController(_initData);
 
-            var result = await _controller.PutPublisher(id, publisher) as OkObjectResult;
+            var result = await _controllerWithData.PutPublisher(id, publisher) as OkObjectResult;
             var resultData = (result?.Value as Response<Publisher>)?.Data;
 
             Assert.NotNull(result);
@@ -213,9 +228,8 @@ namespace VirtualLibrary.Tests.Controllers
         public async void PutPublisher_InitDataNotEmpty_ValidDTO_InvalidId_ReturnNotFound(string id, string name)
         {
             PublisherDTO publisher = new PublisherDTO { Name = name };
-            InitController(_initData);
 
-            var result = await _controller.PutPublisher(id, publisher) as NotFoundObjectResult;
+            var result = await _controllerWithData.PutPublisher(id, publisher) as NotFoundObjectResult;
             var resultData = (result?.Value as Response<Publisher>)?.Data;
 
             Assert.NotNull(result);
@@ -226,11 +240,34 @@ namespace VirtualLibrary.Tests.Controllers
         public async void PutPublisher_InitDataNotEmpty_InvalidDTO_ValidId_ReturnBadRequest()
         {
             PublisherDTO publisher = null;
-            InitController(_initData);
-            _controller.ModelState.AddModelError("", "");
+            _controllerWithData.ModelState.AddModelError("", "");
 
-            var result = await _controller.PutPublisher("1", publisher) as BadRequestObjectResult;
+            var result = await _controllerWithData.PutPublisher("1", publisher) as BadRequestObjectResult;
             var resultData = (result?.Value as Response<Publisher>)?.Data;
+
+            Assert.NotNull(result);
+            Assert.Null(resultData);
+        }
+
+        [Fact]
+        public async void PutPublisher_InitDataEmpty_ValidDTO_ValidId_ReturnNotFound()
+        {
+            PublisherDTO publisher = new PublisherDTO { Name = "Name" };
+
+            var result = await _controllerEmptyData.PutPublisher("1", publisher) as NotFoundObjectResult;
+            var resultData = (result?.Value as Response<Publisher>)?.Data;
+
+            Assert.NotNull(result);
+            Assert.Null(resultData);
+        }
+
+        [Fact]
+        public async void PutPublisher_FailPutData_ReturnNotFound()
+        {
+            PublisherDTO publisher = null;
+
+            var result = await _controllerWithError.PutPublisher("1", publisher) as NotFoundObjectResult;
+            var resultData = (result?.Value as Response<IEnumerable<Publisher>>)?.Data;
 
             Assert.NotNull(result);
             Assert.Null(resultData);
@@ -241,9 +278,7 @@ namespace VirtualLibrary.Tests.Controllers
         [InlineData("2")]
         public async void DeletePublisher_InitDataNotEmpty_ValidId_ReturnOkWithDeletedPublisher(string id)
         {
-            InitController(_initData);
-
-            var result = await _controller.DeletePublisher(id) as OkObjectResult;
+            var result = await _controllerWithData.DeletePublisher(id) as OkObjectResult;
             var resultData = (result?.Value as Response<Publisher>)?.Data;
 
             Assert.NotNull(result);
@@ -256,9 +291,7 @@ namespace VirtualLibrary.Tests.Controllers
         [InlineData(null)]
         public async void DeletePublisher_InitDataNotEmpty_InvalidId_ReturnNotFound(string id)
         {
-            InitController(_initData);
-
-            var result = await _controller.DeletePublisher(id) as NotFoundObjectResult;
+            var result = await _controllerWithData.DeletePublisher(id) as NotFoundObjectResult;
             var resultData = (result?.Value as Response<Publisher>)?.Data;
 
             Assert.NotNull(result);
@@ -268,9 +301,17 @@ namespace VirtualLibrary.Tests.Controllers
         [Fact]
         public async void DeletePublisher_InitDataEmpty_ValidId_ReturnNotFound()
         {
-            InitController(null);
+            var result = await _controllerEmptyData.DeletePublisher("1") as NotFoundObjectResult;
+            var resultData = (result?.Value as Response<Publisher>)?.Data;
 
-            var result = await _controller.DeletePublisher("1") as NotFoundObjectResult;
+            Assert.NotNull(result);
+            Assert.Null(resultData);
+        }
+
+        [Fact]
+        public async void DeletePublisher_FailDeleteData_ReturnNotFound()
+        {
+            var result = await _controllerWithError.DeletePublisher("1") as NotFoundObjectResult;
             var resultData = (result?.Value as Response<Publisher>)?.Data;
 
             Assert.NotNull(result);
